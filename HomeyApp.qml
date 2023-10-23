@@ -15,7 +15,7 @@ import "HomeyTokenFunctions.js" as HomeyTokenFunctions
 App {
 	id: root
 	
-	property bool 	debugOutput: true
+	property bool 	debugOutput: false
 	
 	
 	property url 	tileUrl : "HomeyTile.qml"
