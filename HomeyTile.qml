@@ -45,7 +45,7 @@ Tile {
 				property: "rotation"
 				from: 0
 				to: 360
-				duration: 20000 // Animation duration in milliseconds (e.g., 5000ms or 5 seconds)
+				duration: 20000
 				loops: Animation.Infinite
 				running: app.tokenOK
 			}

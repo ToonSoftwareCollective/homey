@@ -54,7 +54,7 @@ Screen {
 	}
 	
 	
-	function savecCloudID(text) {
+	function saveCloudID(text) {
 		if (text) {
 			tmpcloudid = text;
 		}
