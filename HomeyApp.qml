@@ -36,7 +36,7 @@ App {
     property string client_id : '5a8d4ca6eb9f7a2c9d6ccf6d'
     property string client_secret  :  'e3ace394af9f615857ceaa61b053f966ddcfb12a'
     property string redirect_url  :  'http://localhost'
-    property string cloudid  : '58aec0a449b9f7660d38c329'
+    property string cloudid  : ''
     property string token  : ''
 	property string rftoken : ''
 	property string actoken : ''
