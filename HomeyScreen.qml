@@ -50,6 +50,12 @@ Screen {
 		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("U bent nu doorgestuurd naar het menuscherm omdat nog geen geldige informatie is ingevuld.. <br><br> Check deze gegevens op het menuscherm waar u nu op terecht bent gekomen. ") , qsTr("Sluiten"));
 	}
 	
+	
+	function stringToBoolean(inputString) {
+        return (inputString === "true") ? true : false;
+    }
+	
+	
 	IconButton {
 		id: refreshButton;
 		height: designElements.buttonSize
@@ -61,7 +67,7 @@ Screen {
 			topMargin: 0
 		}
 		onClicked: {
-			updateDevices()
+			getDevices()
 		}
 	}
 
@@ -122,7 +128,7 @@ Screen {
 							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 10:8
 						}
-						isSwitchedOn: model.value
+						isSwitchedOn: stringToBoolean(model.value)
 						onSelectedChangedByUser: {
 							if (isSwitchedOn) {
 								setState("onoff", model.id, true)
@@ -226,10 +232,10 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10:parent.width -8
 					height: isNxt? 35:28
-					color: model.available? "yellow":"lightgrey"
+					color: model.available? "yellow":"navajowhite"
 					Text {
 						id: deviceName2
-						text: (model.zone + " " + model.devicename + " " + model.type).substring(0, 35)
+						text: (model.zone + " " + model.devicename + " " + model.capa).substring(0, (41 - ((model.value + " " +  model.unit).length)))
 						font.pixelSize:  isNxt? 18:14
 						font.family: qfont.bold.name
 						color: "black"
@@ -248,7 +254,22 @@ Screen {
 							right: parent.right
 							rightMargin: isNxt? 20:16
 						}
+						visible: (model.type !== "alarm")
 					}
+					
+					Rectangle {
+						id: alarmIcon
+						radius: 10
+						width: isNxt? 30:24
+						height: isNxt? 30:24
+						color: (model.value === "true")? "red":"limegreen"
+						anchors {
+							verticalCenter: parent.verticalCenter
+							right: parent.right
+							rightMargin: isNxt? 20:16
+						}
+						visible: (model.type === "alarm")
+					}	
 			}
 		}
 	}
@@ -293,22 +314,32 @@ Screen {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
 					if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
-					//if (debugOutput) console.log("*********Homey " + xhr.responseText)
+//					if (debugOutput) console.log("*********Homey " + xhr.responseText)
 
 					var JsonString = xhr.responseText
 					var JsonObject= JSON.parse(JsonString)
 					var units = ""
+					
 
 					for (var key in JsonObject) {
 						if (JsonObject.hasOwnProperty(key)) {
-							//console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
-
+							var zoneName = ""
+							// if (debugOutput) console.log(key + " - " + zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities);
+							// if (debugOutput) console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
 							for (var capa in JsonObject[key].capabilities){
+							
+								if(JsonObject[key].hasOwnProperty("zoneName") && JsonObject[key].zoneName !== 'undefined' && JsonObject[key].zoneName !== null){
+									console.log(JsonObject[key].zoneName)
+									zoneName = JsonObject[key].zoneName
+								}else{
+									zoneName = ""
+								}
+							
 								if (JsonObject[key].capabilities[capa].indexOf("onoff") > -1 || JsonObject[key].capabilities[capa].indexOf("windowcoverings") > -1){
 									var downState = false
 									var upState = false
 									if (JsonObject[key].capabilities[capa] === "onoff" && JsonObject[key].capabilities[capa].indexOf("windowcoverings") === -1){
-										homeyModel.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: "switch", type2: "toggle", value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, available: JsonObject[key].available, up: upState, down: downState})
+										homeyModel.append({id: key , zone:zoneName , type: "onoff" , capa: JsonObject[key].capabilities[capa] , devicename: JsonObject[key].name, type: "switch", type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value)), available: JsonObject[key].available, up: upState, down: downState})
 									}
 
 									if (JsonObject[key].capabilities[capa].indexOf("windowcoverings_state") > -1){
@@ -331,54 +362,62 @@ Screen {
 												downState = false
 												break
 										}
-										homeyModel.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: "switch", type2: "3 button", value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, available: JsonObject[key].available, up: upState, down: downState})
+										homeyModel.append({id: key , zone:zoneName, type: "window" , capa: JsonObject[key].capabilities[capa] , devicename: JsonObject[key].name, type: "switch", type2: "3 button", value: String(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value), available: JsonObject[key].available, up: upState, down: downState})
 									}
 								}
 
-								if (JsonObject[key].capabilities[capa].indexOf("meter_gas") > -1){
+                                if (JsonObject[key].capabilities[capa].indexOf("alarm") > -1){
+									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== undefined & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
+										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
+									}else{
+										units = ""
+									}
+									if (JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value !== null){
+										homeyModel2.append({id: key , zone:zoneName, type: "alarm" , capa: JsonObject[key].capabilities[capa], devicename: JsonObject[key].name, type: "alarm", value: String(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value), unit: units , available: JsonObject[key].available})
+									}
+								}
+								
+								if (JsonObject[key].capabilities[capa].indexOf("locked") > -1){
+									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== undefined & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
+										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
+									}else{
+										units = ""
+									}
+									if (JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value !== null){
+										homeyModel2.append({id: key , zone:zoneName, type: "lock" , capa: JsonObject[key].capabilities[capa], devicename: JsonObject[key].name, type: "lock", value: String(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value), unit: units , available: JsonObject[key].available})
+									}
+								}
+									
+
+								if (JsonObject[key].capabilities[capa].indexOf("meter_water") > -1 ||
+									JsonObject[key].capabilities[capa].indexOf("measure_water") > -1  ||
+									JsonObject[key].capabilities[capa].indexOf("measure_temperature") > -1  ||
+									JsonObject[key].capabilities[capa].indexOf("measure_co") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_co2") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_pm25") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_pressure") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_noise") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_rain") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_wind_strength") > -1  ||
+									JsonObject[key].capabilities[capa].indexOf("measure_wind_angle") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_battery") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_power") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_voltage") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_current") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_luminance") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("meter_gas") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("measure_luminance") > -1   || 
+									JsonObject[key].capabilities[capa].indexOf("meter_rain") > -1   ||
+									JsonObject[key].capabilities[capa].indexOf("meter_power") > -1 
+								){
 									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== "undefined" & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
 										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
 									}else{
 										units = ""
 									}
-									homeyModel2.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, unit: units , available: JsonObject[key].available})
+									homeyModel2.append({id: key , zone:zoneName ,  type: "measure" , capa: JsonObject[key].capabilities[capa],  devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: String(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value), unit: units , available: JsonObject[key].available})
 								}
-
-								if (JsonObject[key].capabilities[capa].indexOf("meter_water") > -1){
-									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== "undefined" & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
-										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
-									}else{
-										units = ""
-									}
-									homeyModel2.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, unit: units , available: JsonObject[key].available})
-								}
-
-								if (JsonObject[key].capabilities[capa].indexOf("measure_water") > -1){
-									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== "undefined" & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
-										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
-									}else{
-										units = ""
-									}
-									homeyModel2.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, unit: units , available: JsonObject[key].available})
-								}
-
-								if (JsonObject[key].capabilities[capa].indexOf("measure_temperature") > -1){
-									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== "undefined" & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
-										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
-									}else{
-										units = ""
-									}
-									homeyModel2.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, unit: units , available: JsonObject[key].available})
-								}
-
-								if (JsonObject[key].capabilities[capa].indexOf("measure_humidity") > -1){
-									if(JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== "undefined" & JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units !== null){
-										units = JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].units
-									}else{
-										units = ""
-									}
-									homeyModel2.append({id: key , zone:JsonObject[key].zoneName , devicename: JsonObject[key].name, type: JsonObject[key].capabilities[capa], value: JsonObject[key].capabilitiesObj[JsonObject[key].capabilities[capa]].value, unit: units , available: JsonObject[key].available})
-								}
+									
 							}
 
 						}
@@ -420,76 +459,60 @@ Screen {
 					var value2
 					var available
 					var available2
+					
 					for (var i = 0; i < homeyModel.count; i++) {
 						var item = homeyModel.get(i);
 						key = item.id
+						var capability = item.capa
+						
 						if (JsonObject.hasOwnProperty(key)) {
-							for (var capa in JsonObject[key].capabilities){
-								var downState = false
-								var upState = false
-								if (JsonObject[key].capabilities[capa] === "onoff" && JsonObject[key].capabilities[capa].indexOf("windowcoverings") === -1){
-									homeyModel.setProperty(i, "value", value)
-								}
-
-								if (JsonObject[key].capabilities[capa].indexOf("windowcoverings_state") > -1){
-									var valState = JsonObject[key].capabilitiesObj["windowcoverings_state"].value
-									switch (valState) {
-										case "up":
-											upState = true
-											downState = false
-											break
-										case "idle":
-											upState = false
-											downState = false
-											break
-										case "down":
-											upState = false
-											downState = true
-											break
-										default:
-											upState = false
-											downState = false
-											break
-									}
-									homeyModel.setProperty(i, "up", upState)
-									homeyModel.setProperty(i, "down", downState)
-								}
+							var downState = false
+							var upState = false
+							if (capability === "onoff" && capability.indexOf("windowcoverings") === -1){
+								homeyModel.setProperty(i, "value", value)
 							}
+	
+							if (debugOutput) console.log("*********Homey cap : " + key + "." + capability)
 
+							if (capability.indexOf("windowcoverings_state") > -1){
+								var valState = JsonObject[key].capabilitiesObj[capability].value
+								switch (valState) {
+									case "up":
+										upState = true
+										downState = false
+										break
+									case "idle":
+										upState = false
+										downState = false
+										break
+									case "down":
+										upState = false
+										downState = true
+										break
+									default:
+										upState = false
+										downState = false
+										break
+								}
+								homeyModel.setProperty(i, "up", upState)
+								homeyModel.setProperty(i, "down", downState)
+							}
 						}
 						available = JsonObject[key].available
 						homeyModel.setProperty(i, "available", available)							
 					}
+
 					for (var i2 = 0; i2 < homeyModel2.count; i2++) {
 						var item = homeyModel2.get(i2);
 						key2 = item.id
-						if (JsonObject.hasOwnProperty(key)) {
-							for (var capa in JsonObject[key2].capabilities){
-								if (JsonObject[key2].capabilities[capa].indexOf("meter_gas") > -1){
-									value2 = JsonObject[key2].capabilitiesObj[JsonObject[key2].capabilities[capa]].value
-								}
-
-								if (JsonObject[key2].capabilities[capa].indexOf("meter_water") > -1){
-									value2 = JsonObject[key2].capabilitiesObj[JsonObject[key2].capabilities[capa]].value
-								}
-
-								if (JsonObject[key2].capabilities[capa].indexOf("measure_water") > -1){
-								    value2 = JsonObject[key2].capabilitiesObj[JsonObject[key2].capabilities[capa]].value
-									available2 = JsonObject[key].available
-								}
-
-								if (JsonObject[key2].capabilities[capa].indexOf("measure_temperature") > -1){
-									value2 = JsonObject[key2].capabilitiesObj[JsonObject[key2].capabilities[capa]].value
-								}
-
-								if (JsonObject[key2].capabilities[capa].indexOf("measure_humidity") > -1){
-									value2 = JsonObject[key2].capabilitiesObj[JsonObject[key2].capabilities[capa]].value
-								}
-							}
+						var capability2 = item.capa
+						if (debugOutput) console.log("*********Homey cap : " + key2 + "." + capability2)
+						if (JsonObject.hasOwnProperty(key2)){
+							value2 = String(JsonObject[key2].capabilitiesObj[capability2].value)
+							available2 = JsonObject[key2].available
+							homeyModel2.setProperty(i2, "value", value2)
+							homeyModel2.setProperty(i2, "available", available2)
 						}
-						available2 = JsonObject[key].available
-						homeyModel2.setProperty(i2, "value", value2)
-						homeyModel2.setProperty(i2, "available", available2)							
 					}
 					refreshThrobber.visible = false
                 } else {
