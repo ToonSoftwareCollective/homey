@@ -25,6 +25,8 @@ App {
 	property SystrayIcon mediaTray2
 	property url 	homeyScreenUrl : "HomeyScreen.qml"
 	property HomeyScreen homeyScreen	
+	property url 	homeyFlowScreenUrl : "HomeyFlowScreen.qml"
+	property HomeyFlowScreen homeyFlowScreen	
 	
 	property url 	thumbnailIcon: "qrc:/tsc/LightBulbOn.png"
 	
@@ -68,6 +70,7 @@ App {
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
+		registry.registerWidget("screen", homeyFlowScreenUrl, this, "homeyFlowScreen");
 	}
 	
 	Component.onCompleted: {

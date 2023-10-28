@@ -180,7 +180,11 @@
                 } else {
                     if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
-
+					var response = xhr.responseText;
+					if (response.indexOf("mesh_node_offline") >-1){
+					if (debugOutput) console.log("*********Homey getNewToken mesh_node_offline")
+						warning = "Foutieve CloudID ingevoerd"
+					}
                 }
             }
         }
