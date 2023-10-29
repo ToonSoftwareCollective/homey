@@ -1,4 +1,5 @@
 import QtQuick 2.1
+import BxtClient 1.0
 import BasicUIControls 1.0
 import qb.components 1.0
 
@@ -11,6 +12,7 @@ Screen {
 	property string		tmppassword: "xxx";
 	property string		tmpSavePassWord: app.password
 	property string		tmpcloudid: app.cloudid
+	property string 	lanIp: "0.0.0.0"
 	
 	property string		rightButtonText: "Opslaan";
 
@@ -154,6 +156,54 @@ Screen {
 	}
 	
 	
+	Text {
+		id: downloadText
+		anchors {
+			left: titleText.left
+			top: tipText.bottom
+			topMargin: isNxt ? 16 : 12
+		}
+		font {
+			pixelSize: qfont.bodyText
+			family: qfont.regular.name
+		}
+		width: isNxt? parent.width - 40:parent.width - 32
+		wrapMode: Text.WordWrap
+		text: "Zorg dat de juiste gegevens zijn ingevuld en dat data wordt opgehaald. Ga dan terug en druk onderstaande knop om een download file aan te maken die kan worden verstuurd. De download bevat gegevens over de configuratie van de hoimey en is voor de ontwikkelaar nodig in geval van problemen."
+	}	
+	
+	
+	StandardButton {
+		id: downloadButton
+		text: "Download"
+		height: isNxt? 45:36
+		anchors {
+			left: titleText.left
+			top: downloadText.bottom
+			topMargin: isNxt ? 8 : 6
+		}
+		onClicked: {
+				getDownload()
+		}
+	}
+	
+	Text {
+		id: downloadText2
+		anchors {
+			left: titleText.left
+			top: downloadButton.bottom
+			topMargin: isNxt ? 16 : 12
+		}
+		font {
+			pixelSize: qfont.bodyText
+			family: qfont.regular.name
+		}
+		width: isNxt? parent.width - 40:parent.width - 32
+		wrapMode: Text.WordWrap
+		text: "Fout, waarschijnlijk zijn de inloggegeven niet correct? Eerst invullen. Daarna opslaan en als de toon koppelt dan terug naar dit scherm en downloaden."
+		visible: false
+	}
+	
 	
 	Throbber {
 		id: refreshThrobber
@@ -165,4 +215,72 @@ Screen {
 		}
 		visible: false
 	}
+	
+	function sleep(milliseconds) {
+      var start = new Date().getTime();
+      while ((new Date().getTime() - start) < milliseconds )  {
+      }
+    }
+
+	
+	
+	function getDownload(){
+        if (debugOutput) console.log("*********Homey Start getDownload()")
+		var jwt = app.token
+		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
+        var xhr = new XMLHttpRequest()
+        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
+        xhr.setRequestHeader( 'content-type', 'application/json');
+        xhr.onreadystatechange = function() { // Call a function when the state changes.
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
+					if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
+//					if (debugOutput) console.log("*********Homey " + xhr.responseText)
+					var doc = new XMLHttpRequest();
+					doc.open("PUT", "file:///var/tmp/homey_log.txt");
+					doc.send(xhr.responseText);
+					downloadText2.visible = true
+					downloadText2.text = "Haal de file op in een browser op : hhtp://" + lanIp + "/homey/homey.download. Stuur deze file op voor debug doeleinden."
+					sleep(1000)
+					var doc2 = new XMLHttpRequest();
+					doc2.open("PUT", "file:///var/tmp/tsc.command");
+					doc2.send("external-homey");
+					
+					lanIp
+
+                } else {
+					if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
+                    if (debugOutput) console.log("*********Homey " + xhr.responseText)
+					downloadText2.visible = true
+					downloadText2.text= "Fout, waarschijnlijk zijn de inloggegeven niet correct? Eerst invullen. Daarna opslaan en als de toon koppelt dan terug naar dit scherm en downloaden."
+                }
+            }
+        }
+        xhr.send();
+    }
+	
+	
+	
+	BxtDiscoveryHandler {
+		id : netconDiscoHandler
+		deviceType: "hcb_netcon"
+		onDiscoReceived: {
+			statusNotifyHandler.sourceUuid = deviceUuid;
+		}
+	}
+	
+	BxtNotifyHandler {
+		id: statusNotifyHandler
+		serviceId: "gwif"
+		onNotificationReceived : {
+			var address = message.getArgument("ipaddress");
+			if (address) {
+				lanIp = address;
+			}
+		}
+	}
+
+	
 }
