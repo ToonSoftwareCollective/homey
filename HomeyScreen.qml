@@ -270,7 +270,7 @@ Screen {
 							right: parent.right
 							rightMargin: isNxt? 20:16
 						}
-						visible: (model.type !== "alarm")
+						visible: (model.type !== "alarm" && model.type !== "heating")
 					}
 					
 					Rectangle {
@@ -284,7 +284,7 @@ Screen {
 							right: parent.right
 							rightMargin: isNxt? 20:16
 						}
-						visible: (model.type === "alarm")
+						visible: (model.type === "alarm" || model.type === "heating")
 					}	
 			}
 		}
@@ -315,43 +315,48 @@ Screen {
 		visible: (app.warning!=="")
 	}
 	
-	function sortModel(){
-		var n;
-		var i;
-		for (n=0; n < homeyModel.count; n++){
-			for (i=n+1; i < homeyModel.count; i++){
-				if (homeyModel.get(n).devicename> homeyModel.get(i).devicename)
-				{
-					homeyModel.move(i, n, 1);
-					n=0;
-				}
-			}
-		}
-	}
-
-	function sortModel2(){
-		var n;
-		var i;
-		for (n=0; n < homeyModel2.count; n++){
-			for (i=n+1; i < homeyModel2.count; i++){
-				if (homeyModel2.get(n).devicename> homeyModel2.get(i).devicename)
-				{
-					homeyModel2.move(i, n, 1);
-					n=0;
-				}
-			}
-		}
-	}
+	function listModelSort1() {
+        var indexes = new Array(homeyModel.count);
+        for (var i = 0; i < homeyModel.count; i++) indexes[i] = i;
+        indexes.sort(function (indexA, indexB) { return homeyModel.get(indexA).devicename.localeCompare(homeyModel.get(indexB).devicename)  } );
+        var sorted = 0;
+        while (sorted < indexes.length && sorted === indexes[sorted]) sorted++;
+        if (sorted === indexes.length) return;
+        for (i = sorted; i < indexes.length; i++) {
+            var idx = indexes[i];
+            homeyModel.move(idx, homeyModel.count - 1, 1);
+            homeyModel.insert(idx, { } );
+        }
+        homeyModel.remove(sorted, indexes.length - sorted);
+    }
+	
+	function listModelSort2() {
+        var indexes = new Array(homeyModel2.count);
+        for (var i = 0; i < homeyModel2.count; i++) indexes[i] = i;
+        indexes.sort(function (indexA, indexB) { return homeyModel2.get(indexA).devicename.localeCompare(homeyModel2.get(indexB).devicename)  } );
+        var sorted = 0;
+        while (sorted < indexes.length && sorted === indexes[sorted]) sorted++;
+        if (sorted === indexes.length) return;
+        for (i = sorted; i < indexes.length; i++) {
+            var idx = indexes[i];
+            homeyModel2.move(idx, homeyModel2.count - 1, 1);
+            homeyModel2.insert(idx, { } );
+        }
+        homeyModel2.remove(sorted, indexes.length - sorted);
+    }
 
 
 
     function getDevices(){
         if (debugOutput) console.log("*********Homey Start getDevices()")
-		var jwt = app.token
+        var jwt = app.token
 		homeyModel.clear()
 		homeyModel2.clear()
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
+
+		//var url = 'file:///qmf/qml/apps/homey/homey.txt'
+		
         var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
@@ -360,7 +365,7 @@ Screen {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
 					if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
-//					if (debugOutput) console.log("*********Homey " + xhr.responseText)
+					if (debugOutput) console.log("*********Homey " + xhr.responseText)
 
 					var JsonString = xhr.responseText
 					var JsonObject= JSON.parse(JsonString)
@@ -377,7 +382,7 @@ Screen {
 							var zoneName = ""
 							isAvailable = JsonObject[key].available
 							//if (debugOutput) console.log(key + " - " + zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities);
-							//if (debugOutput) console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
+							if (debugOutput) console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
 							for (var capa in JsonObject[key].capabilities){
 							
 								capabilityLong = JsonObject[key].capabilities[capa]
@@ -388,7 +393,7 @@ Screen {
 								capabilityShort = capabilityShort.split("alarm_").join("al_");
 								capabilityShort = capabilityShort.split("lock_").join("");
 								
-								//if (debugOutput) console.log("*********Homey short   " + capabilityShort);
+								if (debugOutput) console.log("*********Homey short   " + capabilityShort);
 							
 								if(JsonObject[key].hasOwnProperty("zoneName") && JsonObject[key].zoneName !== 'undefined' && JsonObject[key].zoneName !== null){
 									zoneName = JsonObject[key].zoneName
@@ -396,19 +401,23 @@ Screen {
 									zoneName = ""
 								}
 								
-								if(JsonObject[key].capabilitiesObj[capabilityLong].units !== undefined & JsonObject[key].capabilitiesObj[capabilityLong].units !== null){
-									units = JsonObject[key].capabilitiesObj[capabilityLong].units
+								if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
+									if(JsonObject[key].capabilitiesObj[capabilityLong].units !== undefined & JsonObject[key].capabilitiesObj[capabilityLong].units !== null){
+										units = JsonObject[key].capabilitiesObj[capabilityLong].units
+									}else{
+										units = ""
+									}
 								}else{
 									units = ""
 								}
-
+								
 								var downState = false
 								var upState = false
-									
+
 
 								if (capabilityLong.indexOf("onoff") > -1 || capabilityLong.indexOf("windowcoverings") > -1){
 									if (capabilityLong === "onoff" && capabilityLong.indexOf("windowcoverings") === -1){
-										homeyModel.append({number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type: "switch", type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), available: isAvailable, up: upState, down: downState})
 									
 									}
 
@@ -432,19 +441,32 @@ Screen {
 												downState = false
 												break
 										}
-										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type: "switch", type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), available: isAvailable, up: upState, down: downState})
 									}
 								}
 
                                 if (capabilityLong.indexOf("alarm") > -1){
-									if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-										homeyModel2.append({number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, type: "alarm", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
+										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
+											homeyModel2.append({number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+										}
 									}
 								}
 								
+								if (capabilityLong.indexOf("hotWaterState") > -1 || capabilityLong.indexOf("burnerState") > -1){
+									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
+										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
+											homeyModel2.append({number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+										}
+									}
+								}
+								
+								
 								if (capabilityLong.indexOf("locked") > -1){
-									if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-										homeyModel2.append({number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, type: "lock", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
+										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
+											homeyModel2.append({number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+										}
 									}
 								}
 									
@@ -463,35 +485,38 @@ Screen {
 									capabilityLong.indexOf("measure_power") > -1   ||
 									capabilityLong.indexOf("measure_voltage") > -1   ||
 									capabilityLong.indexOf("measure_current") > -1   ||
-									capabilityLong.indexOf("measure_luminance") > -1   ||
+									capabilityLong.indexOf("measure_humidity") > -1   ||
 									capabilityLong.indexOf("meter_gas") > -1   ||
 									capabilityLong.indexOf("measure_luminance") > -1   || 
 									capabilityLong.indexOf("meter_rain") > -1   ||
-									capabilityLong.indexOf("meter_power") > -1 
+									capabilityLong.indexOf("target_temperature") > -1   ||
+									capabilityLong.indexOf("temperature_state") > -1   ||
+									capabilityLong.indexOf("programState") > -1   ||
+									capabilityLong.indexOf("meter_power") > -1
 								){
-									homeyModel2.append({number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, type: capabilityLong, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+									homeyModel2.append({number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
 								}
 									
 							}
 							number++
 						}
 					}
-					sortModel()
-					sortModel2()
+					
+					listModelSort1()
+					listModelSort2()
 					refreshThrobber.visible = false
                 } else {
 					if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
 					refreshThrobber.visible = false
 					if (debugOutput) console.log("*********Homey getting new Token")
-					app.warning = "Fout, ververs tokens vanuit refreshtoken"
-					app.refreshToken()
+					app.warning = "Fout, nieuwe token ophalen"
+					app.getNewToken()
                 }
             }
         }
-        xhr.send();
+        xhr.send()
     }
-
 
     function updateDevices(){
         if (debugOutput) console.log("*********Homey Start updateDevices()")
@@ -499,7 +524,10 @@ Screen {
 		var jwt = app.token
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		
+		//var url = 'file:///qmf/apps/homey/homey.txt'
+
+		var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');

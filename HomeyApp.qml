@@ -101,7 +101,6 @@ App {
 		try {
 			var settingsString = homeySettingsFile.read();
 			settings = JSON.parse(settingsString);
-			if (settings['debugOutput']) debugOutput = (settings['debugOutput'] == "true");
 			if (settings['email']) email = (settings['email']);
 			if (settings['password']) password = (settings['password']);
 			if (settings['homeyWarningShown']) homeyWarningShown = (settings['homeyWarningShown'] == "true");
@@ -121,15 +120,6 @@ App {
 	function saveSettings() {
 		if (debugOutput) console.log("*********homey saveSettings()")
 
-		
-		var tmpdebugOutput = "";
-		if (debugOutput) {
-			tmpdebugOutput = "true";
-		} else {
-			tmpdebugOutput = "false";
-		}
-
-		settings["debugOutput"] = tmpdebugOutput;
 		settings["email"] = email;
 		settings["password"] = password;
 		settings["client_id"] = client_id;
@@ -167,5 +157,19 @@ App {
 		actoken = ""
 		clearModels()
 	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
