@@ -169,7 +169,7 @@ Screen {
 		}
 		width: isNxt? parent.width - 40:parent.width - 32
 		wrapMode: Text.WordWrap
-		text: "Zorg dat de juiste gegevens zijn ingevuld en dat data wordt opgehaald. Ga dan terug en druk onderstaande knop om een download file aan te maken die kan worden verstuurd. De download bevat gegevens over de configuratie van de hoimey en is voor de ontwikkelaar nodig in geval van problemen."
+		text: "Zorg dat de juiste gegevens zijn ingevuld en dat data wordt opgehaald. Ga dan terug en druk onderstaande knop om een download file aan te maken die kan worden verstuurd. De download bevat gegevens over de configuratie van de Homey en is voor de ontwikkelaar nodig in geval van problemen."
 	}	
 	
 	
@@ -242,7 +242,7 @@ Screen {
 					doc.open("PUT", "file:///var/tmp/homey_log.txt");
 					doc.send(xhr.responseText);
 					downloadText2.visible = true
-					downloadText2.text = "Haal de file op in een browser op : hhtp://" + lanIp + "/homey/homey.download. Stuur deze file op voor debug doeleinden."
+					downloadText2.text = "Haal de file op in een browser op : http://" + lanIp + "/homey/homey.download. Stuur deze file op voor debug doeleinden."
 					sleep(1000)
 					var doc2 = new XMLHttpRequest();
 					doc2.open("PUT", "file:///var/tmp/tsc.command");
