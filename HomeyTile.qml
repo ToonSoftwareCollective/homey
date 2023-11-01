@@ -7,8 +7,8 @@ Tile {
 	
 
 	onClicked: {
-		if (app.homeyScreen){	
-			app.homeyScreen.show();
+		if (app.homeyFavoritesScreen){	
+			app.homeyFavoritesScreen.show();
 		}
 	}
 	
@@ -31,12 +31,13 @@ Tile {
 			id: homeyImage
 			source: "drawables/homey.png"
 			fillMode: Image.PreserveAspectFit
-			height: isNxt? 120:96
-			width: isNxt? 120:96
+			height: isNxt? 110:88
+			width: isNxt? 110:88
 			anchors {
 				horizontalCenter: parent.horizontalCenter
-				top: tileTitle.bottom
-				topMargin: isNxt? 20:16
+				verticalCenter: parent.verticalCenter
+				//top: tileTitle.bottom
+				//topMargin: isNxt? 20:16
 			}
 			
 			RotationAnimation {

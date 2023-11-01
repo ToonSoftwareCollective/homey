@@ -8,20 +8,20 @@ Screen {
 	screenTitle: "Homey"
 	
 	property bool debugOutput : app.debugOutput
-	property int getFlowsInterval :5000
+	property int getDevicesInterval :5000
 	property string settingsString : ""
 	
-	onCustomButtonClicked:{
-		if (app.homeyConfigScreen2) {
-			 app.homeyConfigScreen2.show();
-		}
-	}
+	property variant devicesArray : []
+	
 	
 	FileIO {
 		id: homeySettingsFile
 		source: "file:////mnt/data/tsc/appData/homey.flows.json"
  	}
 	
+	onCustomButtonClicked:{
+		saveSettings()
+	}
 	
 	Component.onCompleted: {
 		app.clearModels.connect(clearModel);
@@ -31,8 +31,6 @@ Screen {
 		homeyModel.clear()
 	}
 	
-	
-	
 	function readSettings() {
 		if (debugOutput) console.log("*********homey readSettings()")
 		try {
@@ -41,29 +39,29 @@ Screen {
 		}
     }
 	
+	function sleep(milliseconds) {
+		var start = new Date().getTime();
+		while ((new Date().getTime() - start) < milliseconds )  {
+		}
+    }
+	
 	onShown: {
-		refreshThrobber.visible = true
+		readyText.text = ""
 		readSettings()
-		getFlowsTimer.running = true;
-		addCustomTopRightButton("Instellingen");
+		refreshThrobber.visible = true
+		sleep(500)
+		addCustomTopRightButton("Opslaan");
+		getflows()
 	}
 	
-	function showPopup() {
-		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("U bent nu doorgestuurd naar het menuscherm omdat nog geen geldige informatie is ingevuld.. <br><br> Check deze gegevens op het menuscherm waar u nu op terecht bent gekomen. ") , qsTr("Sluiten"));
-	}
-	
-	onHidden: {
-		getFlowsTimer.running = false
-	}
 
-	
 	function stringToBoolean(inputString) {
         return (inputString === "true") ? true : false;
     }
 	
 	Text {
 		id: screenTip
-		text: "Alle (zichtbare) flows. Pas dit evt aan in instellingen."
+		text: "Geef in dit scherm aan welke flows zichtbaar moeten zijn."
 		font.pixelSize:  isNxt? 20:16
 		font.family: qfont.bold.name
 		color: "black"
@@ -74,34 +72,76 @@ Screen {
 			bottomMargin: 5
 		}
 	}
-
-	IconButton {
-		id: refreshButton;
-		height: designElements.buttonSize
-		iconSource: "qrc:/images/refresh.svg"
+	
+	Text {
+		id: visibleName
+		text: "Zichtbaar"
+		font.pixelSize:  isNxt? 18:14
+		font.family: qfont.bold.name
+		color: "black"
 		anchors {
-			top: parent.top
 			right: parent.right
 			rightMargin: isNxt? 10:8
+			top: parent.top
 			topMargin: 0
 		}
-		onClicked: {
-			getflows()
+	}
+	
+	StandardCheckBox {
+		id: checkBoxAllDev
+		height: isNxt? 40:32
+		width: isNxt? 40:32
+		anchors {
+			right: frame1.right
+			rightMargin: isNxt? 25:20
+			top: visibleName.bottom
+		}
+		backgroundColor: colors.graphCheckboxTextBackground
+		squareBackgroundColor: "yellow"
+		squareSelectedColor: colors.graphCheckboxSquare
+		squareUnselectedColor: squareSelectedColor
+		fontColorSelected: colors.cbText
+		squareRadius: isNxt? 18:14
+		smallSquareRadius: isNxt? 16:13
+		squareOffset: 0
+		spacing: Math.round(3 * horizontalScaling)
+		leftMargin: Math.round(1 * horizontalScaling)
+		rightMargin: 0
+		checkMarkStartXOffset: isNxt? 3:3
+		checkMarkStartYOffset: isNxt? 6:5
+		fontFamilySelected: qfont.regular.name
+		fontPixelSize: isNxt? 60:48
+		topClickMargin: isNxt? 10:8
+		bottomClickMargin: isNxt? 10:8
+		selected : false
+		onSelectedChanged: { 
+			if (selected) {
+				for (var i = 0; i < homeyModel.count; i++) {
+					var item = homeyModel.get(i);
+					homeyModel.setProperty(i, "checked", true)
+				}	
+			} else {
+				for (var i = 0; i < homeyModel.count; i++) {
+					var item = homeyModel.get(i);
+					homeyModel.setProperty(i, "checked", false)
+				}
+			}
 		}
 	}
+	
 
    Rectangle {
 		id: frame1
 		width: isNxt? (parent.width)-15: (parent.width)-12
-		height: isNxt? parent.height - 50:parent.height - 40
+		height: isNxt? parent.height - 85 :parent.height - 68
 		border.color : "black"
 		border.width : 3
 
 		anchors {
-			top: parent.top
+			top: checkBoxAllDev.bottom
 			left: parent.left
 			leftMargin: isNxt? 10:8
-			topMargin: isNxt? 50:40
+			topMargin: isNxt? 10:8
 		}
 
 		ListModel {
@@ -139,24 +179,48 @@ Screen {
 							verticalCenter: parent.verticalCenter
 						}
 					}
-					StandardButton {
-						id: unlockButton
-						text: "Trigger flow"
-						height: isNxt? 35:28
-						visible:  model.enabled
+					
+					StandardCheckBox {
+						id: checkBox
+						height: isNxt? 40:32
+						width: isNxt? 40:32
 						anchors {
 							right: parent.right
-							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 10:8
 						}
-						onClicked: {
-							tiggerflow(model.id);
+						backgroundColor: colors.graphCheckboxTextBackground
+						squareBackgroundColor: "yellow"
+						squareSelectedColor: colors.graphCheckboxSquare
+						squareUnselectedColor: squareSelectedColor
+						fontColorSelected: colors.cbText
+						squareRadius: isNxt? 18:14
+						smallSquareRadius: isNxt? 16:13
+						squareOffset: 0
+						spacing: Math.round(3 * horizontalScaling)
+						leftMargin: Math.round(1 * horizontalScaling)
+						rightMargin: 0
+						checkMarkStartXOffset: isNxt? 3:3
+						checkMarkStartYOffset: isNxt? 6:5
+						fontFamilySelected: qfont.regular.name
+						fontPixelSize: isNxt? 60:48
+						topClickMargin: isNxt? 10:8
+						bottomClickMargin: isNxt? 10:8
+						selected : model.checked
+						onSelectedChanged: { 
+							if (selected) {
+								model.checked = true
+								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
+							} else {
+								model.checked = false
+								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
+							}
 						}
 					}
 				}
             snapMode: GridView.SnapToRow
 		}
 	}
+
 
 	Throbber {
 		id: refreshThrobber
@@ -167,6 +231,19 @@ Screen {
 			horizontalCenter: parent.horizontalCenter
 		}
 		visible: false
+	}
+	
+	Text {
+		id: readyText
+		text: ""
+		font.pixelSize:  32
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			bottom: frame1.top
+			bottomMargin: 2
+			horizontalCenter: parent.horizontalCenter
+		}
 	}
 	
 	
@@ -184,7 +261,8 @@ Screen {
         }
         homeyModel.remove(sorted, indexes.length - sorted);
     }
-	
+
+
 
     function getflows(){
         if (debugOutput) console.log("*********Homey Start getflows()")
@@ -206,14 +284,20 @@ Screen {
 					var JsonObject= JSON.parse(JsonString)
 					var isEnabled = true
 					var name = ""
-					
+					var checked = false
+
 					for (var key in JsonObject) {
 						if (JsonObject.hasOwnProperty(key)) {
-							if(settingsString.indexOf(String(key))<0){
-								name = JsonObject[key].name
-								isEnabled = JsonObject[key].enabled
-								homeyModel.append({id: key , flowname: name, enabled: isEnabled})
+						
+							if(settingsString.indexOf(String(key))>-1){
+								checked = false
+							}else{
+								checked = true
 							}
+								
+							name = JsonObject[key].name
+							isEnabled = JsonObject[key].enabled
+							homeyModel.append({id: key , checked: checked, flowname: name, enabled: isEnabled})
 						}
 					}
 					listModelSort1()
@@ -229,49 +313,21 @@ Screen {
         }
         xhr.send();
     }
-
-
-    function tiggerflow(flowid){
-        if (debugOutput) console.log("*********Homey Start getDevices()")
-		var jwt = app.token
-
-		if (debugOutput) console.log("*********Homey flowId : " + flowid)
-        var xhr = new XMLHttpRequest()
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/flow/flow/' + flowid + '/trigger'
-        if (debugOutput) console.log("*********Homey url : " + url)
-		xhr.open("POST", url, true);
-        xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
-        xhr.setRequestHeader( 'content-type', 'application/json');
-        xhr.onreadystatechange = function() { // Call a function when the state changes.
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
-					if (debugOutput) console.log("xhr.status: " + xhr.status)
-					if (debugOutput) console.log(xhr.responseText)
-                } else {
-                    if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
-                    if (debugOutput) console.log("*********Homey " + xhr.responseText)
-                }
-            }
-        }
-        xhr.send()
-    }
 	
-
-
-	Timer{
-		id: getFlowsTimer
-		interval: getFlowsInterval
-		triggeredOnStart: true
-		running: false
-		repeat: true
-		onTriggered: 
-			if(app.tokenOK){
-				getFlowsInterval = 300000
-				getflows()
-			}else{
-				getFlowsInterval = 10000
+	function saveSettings() {
+		if (debugOutput) console.log("*********homey saveDeviceSettings()")
+		refreshThrobber.visible = true
+		devicesArray = []
+		for (var i = 0; i < homeyModel.count; i++) {
+			var item = homeyModel.get(i);
+			if (debugOutput) console.log("*********homey saveDeviceSettings() item.checked : " + item.checked)
+			if (item.checked === false){
+				devicesArray.push(item.id)
 			}
+		}
+		homeySettingsFile.write(JSON.stringify(devicesArray));
+		if (debugOutput) console.log("*********homey saveSettings() file saved")
+		sleep(2000)
+		refreshThrobber.visible = false
 	}
-
-	
 }

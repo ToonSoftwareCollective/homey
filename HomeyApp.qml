@@ -1,7 +1,5 @@
 //
-// Sonos v3.2 by Harmen Bartelink
-// Further enhanced by Toonz after Harmen stopped developing
-// Further enhanced by oepi-loepi to make it work without broker
+// Homey by by oepi-loepi
 //
 
 import QtQuick 2.1
@@ -15,7 +13,7 @@ import "HomeyTokenFunctions.js" as HomeyTokenFunctions
 App {
 	id: root
 	
-	property bool 	debugOutput: false
+	property bool 	debugOutput: true
 	
 	
 	property url 	tileUrl : "HomeyTile.qml"
@@ -27,6 +25,16 @@ App {
 	property HomeyScreen homeyScreen	
 	property url 	homeyFlowScreenUrl : "HomeyFlowScreen.qml"
 	property HomeyFlowScreen homeyFlowScreen	
+	property url 	homeyDevicesScreenUrl : "HomeyDevicesScreen.qml"
+	property HomeyDevicesScreen homeyDevicesScreen
+	property url 	homeyFavoritesScreenUrl : "HomeyFavoritesScreen.qml"
+	property HomeyFavoritesScreen homeyFavoritesScreen
+	property url 	homeyFlowSelectScreenUrl : "HomeyFlowSelectScreen.qml"
+	property HomeyFlowSelectScreen homeyFlowSelectScreen
+
+	property HomeyConfigScreen2 homeyConfigScreen2
+	property url 	homeyConfigScreen2Url : "HomeyConfigScreen2.qml"
+
 	
 	property url 	thumbnailIcon: "qrc:/tsc/LightBulbOn.png"
 	
@@ -70,7 +78,11 @@ App {
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
+		registry.registerWidget("screen", homeyConfigScreen2Url, this, "homeyConfigScreen2");
 		registry.registerWidget("screen", homeyFlowScreenUrl, this, "homeyFlowScreen");
+		registry.registerWidget("screen", homeyDevicesScreenUrl, this, "homeyDevicesScreen");
+		registry.registerWidget("screen", homeyFlowSelectScreenUrl, this, "homeyFlowSelectScreen");
+		registry.registerWidget("screen", homeyFavoritesScreenUrl, this, "homeyFavoritesScreen");
 	}
 	
 	Component.onCompleted: {
@@ -157,19 +169,5 @@ App {
 		actoken = ""
 		clearModels()
 	}
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
