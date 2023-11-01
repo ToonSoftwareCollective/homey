@@ -374,7 +374,7 @@ Screen {
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 
-var 	//url = 'file:///qmf/qml/apps/homey/homey.txt'
+	//var url = 'file:///qmf/qml/apps/homey/homey.txt'
 		
         var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
@@ -546,9 +546,9 @@ var 	//url = 'file:///qmf/qml/apps/homey/homey.txt'
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 		
-var url = 'file:///qmf/apps/homey/homey.txt'
+//		var url = 'file:///qmf/apps/homey/homey.txt'
 
-		//var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');
