@@ -5,7 +5,7 @@ import FileIO 1.0
 
 Screen {
 	id: homeyScreen
-	screenTitle: "Homey"
+	screenTitle: "Homey favorieten"
 	
 	property bool debugOutput : app.debugOutput
 	property int getDevicesInterval :5000
@@ -13,7 +13,7 @@ Screen {
 	
 	FileIO {
 		id: homeySettingsFile
-		source: "file:////mnt/data/tsc/appData/homey.devices.json"
+		source: "file:////mnt/data/tsc/appData/homey.favorites.json"
  	}
 	
 	onCustomButtonClicked:{
@@ -76,17 +76,37 @@ Screen {
         return (inputString === "true") ? true : false;
     }
 	
-	Text {
-		id: screenTip
-		text: "Alle (zichtbare) apparaten. Pas dit evt aan in instellingen."
-		font.pixelSize:  isNxt? 20:16
-		font.family: qfont.bold.name
-		color: "black"
+	StandardButton {
+		id: flowButton
+		text: "Flows"
+		height: isNxt? 45:36
 		anchors {
 			left: parent.left
 			leftMargin: isNxt? 10:8
-			bottom: frame1.top
-			bottomMargin: 5
+			top: parent.top
+			topMargin: 0
+		}
+		onClicked: {
+			if (app.homeyFlowScreen){	
+				app.homeyFlowScreen.show();
+			}
+		}
+	}
+	
+	StandardButton {
+		id: devicesButton
+		text: "Apparaten"
+		height: isNxt? 45:36
+		anchors {
+			left: flowButton.right
+			leftMargin: isNxt? 10:8
+			top: parent.top
+			topMargin: 0
+		}
+		onClicked: {
+			if (app.homeyScreen){	
+				app.homeyScreen.show();
+			}
 		}
 	}
 	
@@ -317,8 +337,8 @@ Screen {
 							rightMargin: isNxt? 20:16
 						}
 						visible: ((model.type === "lock"))
-					}					
-				}
+					}
+			}
 		}
 	}
 
@@ -374,7 +394,7 @@ Screen {
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 
-var 	//url = 'file:///qmf/qml/apps/homey/homey.txt'
+		//var url = 'file:///qmf/qml/apps/homey/homey.txt'
 		
         var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
@@ -546,9 +566,9 @@ var 	//url = 'file:///qmf/qml/apps/homey/homey.txt'
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 		
-var url = 'file:///qmf/apps/homey/homey.txt'
+		//var url = 'file:///qmf/apps/homey/homey.txt'
 
-		//var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');

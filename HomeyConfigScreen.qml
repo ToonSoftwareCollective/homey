@@ -6,7 +6,7 @@ import qb.components 1.0
 Screen {
 	id: homeyConfigScreen
 	property bool debugOutput : app.debugOutput
-	screenTitle: qsTr("Homey Instellingen")
+	screenTitle: qsTr("Homey account instellingen")
 
 	property string    	tmpemail: app.email;
 	property string		tmppassword: "xxx";
