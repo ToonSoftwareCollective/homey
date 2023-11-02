@@ -57,6 +57,7 @@ Screen {
     }
 	
 	onShown: {
+		readyText.visible = false
 		readSettings()
 		refreshThrobber.visible = true
 		sleep(500)
@@ -108,7 +109,7 @@ Screen {
 			top: visibleName.bottom
 		}
 		backgroundColor: colors.graphCheckboxTextBackground
-		squareBackgroundColor: "yellow"
+		squareBackgroundColor:  "#FFFFFF"
 		squareSelectedColor: colors.graphCheckboxSquare
 		squareUnselectedColor: squareSelectedColor
 		fontColorSelected: colors.cbText
@@ -164,7 +165,7 @@ Screen {
 			top: favName.bottom
 		}
 		backgroundColor: colors.graphCheckboxTextBackground
-		squareBackgroundColor: "yellow"
+		squareBackgroundColor:  "#FFFFFF"
 		squareSelectedColor: colors.graphCheckboxSquare
 		squareUnselectedColor: squareSelectedColor
 		fontColorSelected: colors.cbText
@@ -235,7 +236,7 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10 : parent.width -8
 					height: isNxt? 35:28
-					color: model.available? "yellow":"navajowhite"
+					color: model.available?  "#F0F0F0":"navajowhite"
 					Text {
 						id: deviceName
 						text: (model.zone + " " + model.devicename + " " + model.capa).substring(0, 50)
@@ -256,7 +257,7 @@ Screen {
 							rightMargin: isNxt? 10:8
 						}
 						backgroundColor: colors.graphCheckboxTextBackground
-						squareBackgroundColor: "yellow"
+						squareBackgroundColor:  "#FFFFFF"
 						squareSelectedColor: colors.graphCheckboxSquare
 						squareUnselectedColor: squareSelectedColor
 						fontColorSelected: colors.cbText
@@ -277,11 +278,9 @@ Screen {
 							if (selected) {
 								model.checked = true
 								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
-								rightButtonText = "Opslaan"
 							} else {
 								model.checked = false
 								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
-								rightButtonText = "Opslaan"
 							}
 						}
 					}
@@ -295,7 +294,7 @@ Screen {
 							rightMargin: isNxt? 30:24
 						}
 						backgroundColor: colors.graphCheckboxTextBackground
-						squareBackgroundColor: "yellow"
+						squareBackgroundColor:  "#FFFFFF"
 						squareSelectedColor: colors.graphCheckboxSquare
 						squareUnselectedColor: squareSelectedColor
 						fontColorSelected: colors.cbText
@@ -410,6 +409,19 @@ Screen {
 		visible: false
 	}
 	
+	Text {
+		id: readyText
+		text: "Opgeslagen"
+		font.pixelSize:  isNxt? 32:26
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
+		}
+	}
+	
 
 	
 	function listModelSort1() {
@@ -434,9 +446,11 @@ Screen {
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 
-		//var url = 'file:///qmf/qml/apps/homey/homey.txt'
-		
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		if (app.testurl){
+			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+		}else{
+			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		}
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');
@@ -621,7 +635,20 @@ Screen {
 		homeySettingsFile.write(JSON.stringify(devicesArray));
 		homeySettingsFavFile.write(JSON.stringify(devicesFavArray));
 		if (debugOutput) console.log("*********homey saveSettings() file saved")
-		sleep(2000)
-		refreshThrobber.visible = false
+		readyText.visible = true
+		throbberTimer.running = true
+	}
+	
+	Timer{
+		id: throbberTimer
+		interval: 2000
+		triggeredOnStart: false
+		running: false
+		repeat: false
+		onTriggered:
+			{
+				refreshThrobber.visible = false
+				readyText.visible = false
+			}
 	}
 }

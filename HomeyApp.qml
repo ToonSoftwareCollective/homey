@@ -13,8 +13,8 @@ import "HomeyTokenFunctions.js" as HomeyTokenFunctions
 App {
 	id: root
 	
-	property bool 	debugOutput: true
-	
+	property bool 	debugOutput: false
+	property bool 	testurl: false
 	
 	property url 	tileUrl : "HomeyTile.qml"
 	property HomeyConfigScreen homeyConfigScreen

@@ -143,7 +143,7 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10 : parent.width -8
 					height: isNxt? 35:28
-					color: model.available? "yellow":"navajowhite"
+					color: model.available?  "#F0F0F0":"navajowhite"
 					Text {
 						id: deviceName
 						text: (model.zone + " " + model.devicename).substring(0, 35)
@@ -266,7 +266,7 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10:parent.width -8
 					height: isNxt? 35:28
-					color: model.available? "yellow":"navajowhite"
+					color: model.available?  "#F0F0F0":"navajowhite"
 					Text {
 						id: deviceName2
 						text: (model.zone + " " + model.devicename + " " + model.capaShort).substring(0, (41 - ((model.value + " " +  model.unit).length)))
@@ -373,10 +373,11 @@ Screen {
 		homeyModel2.clear()
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
-
-	//var url = 'file:///qmf/qml/apps/homey/homey.txt'
-		
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		if (app.testurl){
+			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+		}else{
+			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		}
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');
@@ -545,10 +546,11 @@ Screen {
 		var jwt = app.token
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
-		
-//		var url = 'file:///qmf/apps/homey/homey.txt'
-
-		var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		if (app.testurl){
+			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+		}else{
+			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		}
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');

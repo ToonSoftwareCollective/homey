@@ -13,45 +13,38 @@ Tile {
 	}
 	
 	Text {
-		id: tileTitle
+		id: titleText
+		text: "Homey"
 		anchors {
 			baseline: parent.top
-			baselineOffset: isNxt? 30:24
+			baselineOffset: Math.round(30 * verticalScaling)
 			horizontalCenter: parent.horizontalCenter
 		}
 		font {
 			family: qfont.regular.name
 			pixelSize: qfont.tileTitle
 		}
-		color: !dimState? "black" : "white"
-		text: "Homey"
+		color: dimmableColors.tileTitleColor
 	}
+
 	
 	Image {
-			id: homeyImage
-			source: "drawables/homey.png"
-			fillMode: Image.PreserveAspectFit
-			height: isNxt? 110:88
-			width: isNxt? 110:88
-			anchors {
-				horizontalCenter: parent.horizontalCenter
-				verticalCenter: parent.verticalCenter
-				//top: tileTitle.bottom
-				//topMargin: isNxt? 20:16
-			}
-			
-			RotationAnimation {
-				id: rotateAnimation
-				target: homeyImage
-				property: "rotation"
-				from: 0
-				to: 360
-				duration: 20000
-				loops: Animation.Infinite
-				running: app.tokenOK
-			}
+		id: homeyImage
+		source: "drawables/homey.png"
+		fillMode: Image.PreserveAspectFit
+		height: isNxt? 100:80
+		width: isNxt? 100:80
+		anchors.centerIn: parent
+		
+		RotationAnimation {
+			id: rotateAnimation
+			target: homeyImage
+			property: "rotation"
+			from: 0
+			to: 360
+			duration: 20000
+			loops: Animation.Infinite
+			running: app.tokenOK
 		}
-
-
-
+	}
 }
