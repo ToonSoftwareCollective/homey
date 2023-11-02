@@ -128,7 +128,7 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10 : parent.width -8
 					height: isNxt? 35:28
-					color: model.enabled? "yellow":"navajowhite"
+					color: model.enabled?  "#F0F0F0":"navajowhite"
 					Text {
 						id: flowName
 						text: (model.flowname).substring(0, 35)

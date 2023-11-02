@@ -10,7 +10,6 @@ Screen {
 	property bool debugOutput : app.debugOutput
 	property int getDevicesInterval :5000
 	property string settingsString : ""
-	
 	property variant devicesArray : []
 	
 	
@@ -46,7 +45,7 @@ Screen {
     }
 	
 	onShown: {
-		readyText.text = ""
+		readyText.visible = false
 		readSettings()
 		refreshThrobber.visible = true
 		sleep(500)
@@ -97,7 +96,7 @@ Screen {
 			top: visibleName.bottom
 		}
 		backgroundColor: colors.graphCheckboxTextBackground
-		squareBackgroundColor: "yellow"
+		squareBackgroundColor:  "#FFFFFF"
 		squareSelectedColor: colors.graphCheckboxSquare
 		squareUnselectedColor: squareSelectedColor
 		fontColorSelected: colors.cbText
@@ -168,7 +167,7 @@ Screen {
 				Rectangle {
 					width: isNxt? parent.width -10 : parent.width -8
 					height: isNxt? 35:28
-					color: model.enabled? "yellow":"navajowhite"
+					color: model.enabled?  "#F0F0F0":"navajowhite"
 					Text {
 						id: flowName
 						text: (model.flowname).substring(0, 35)
@@ -189,7 +188,7 @@ Screen {
 							rightMargin: isNxt? 10:8
 						}
 						backgroundColor: colors.graphCheckboxTextBackground
-						squareBackgroundColor: "yellow"
+						squareBackgroundColor:  "#FFFFFF"
 						squareSelectedColor: colors.graphCheckboxSquare
 						squareUnselectedColor: squareSelectedColor
 						fontColorSelected: colors.cbText
@@ -235,14 +234,14 @@ Screen {
 	
 	Text {
 		id: readyText
-		text: ""
-		font.pixelSize:  32
+		text: "Opgeslagen"
+		font.pixelSize:  isNxt? 32:26
 		font.family: qfont.bold.name
 		color: "black"
 		anchors {
-			bottom: frame1.top
-			bottomMargin: 2
 			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
 		}
 	}
 	
@@ -327,7 +326,20 @@ Screen {
 		}
 		homeySettingsFile.write(JSON.stringify(devicesArray));
 		if (debugOutput) console.log("*********homey saveSettings() file saved")
-		sleep(2000)
-		refreshThrobber.visible = false
+		readyText.visible = true
+		throbberTimer.running = true
+	}
+	
+	Timer{
+		id: throbberTimer
+		interval: 2000
+		triggeredOnStart: false
+		running: false
+		repeat: false
+		onTriggered:
+			{
+				refreshThrobber.visible = false
+				readyText.visible = false
+			}
 	}
 }
