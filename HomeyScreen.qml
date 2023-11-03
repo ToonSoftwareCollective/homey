@@ -5,7 +5,7 @@ import FileIO 1.0
 
 Screen {
 	id: homeyScreen
-	screenTitle: "Homey"
+	screenTitle: "Homey apparaten"
 	
 	property bool debugOutput : app.debugOutput
 	property int getDevicesInterval :5000
@@ -374,7 +374,7 @@ Screen {
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 		if (app.testurl){
-			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+			var url = 'file:///root/homey.txt'
 		}else{
 			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
 		}
@@ -547,7 +547,7 @@ Screen {
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
 		if (app.testurl){
-			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+			var url = 'file:///root/homey.txt'
 		}else{
 			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
 		}
