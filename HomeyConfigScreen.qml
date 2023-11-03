@@ -9,7 +9,7 @@ Screen {
 	screenTitle: qsTr("Homey account instellingen")
 
 	property string    	tmpemail: app.email;
-	property string		tmppassword: "xxx";
+	property string		tmppassword: app.password;
 	property string		tmpSavePassWord: app.password
 	property string		tmpcloudid: app.cloudid
 	property string 	lanIp: "0.0.0.0"
