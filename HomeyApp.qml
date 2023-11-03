@@ -25,8 +25,8 @@ App {
 	property HomeyScreen homeyScreen	
 	property url 	homeyFlowScreenUrl : "HomeyFlowScreen.qml"
 	property HomeyFlowScreen homeyFlowScreen	
-	property url 	homeyDevicesScreenUrl : "HomeyDevicesScreen.qml"
-	property HomeyDevicesScreen homeyDevicesScreen
+	property url 	homeyDevicesSelectScreenUrl : "HomeyDevicesSelectScreen.qml"
+	property HomeyDevicesSelectScreen homeyDevicesSelectScreen
 	property url 	homeyFavoritesScreenUrl : "HomeyFavoritesScreen.qml"
 	property HomeyFavoritesScreen homeyFavoritesScreen
 	property url 	homeyFlowSelectScreenUrl : "HomeyFlowSelectScreen.qml"
@@ -80,7 +80,7 @@ App {
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
 		registry.registerWidget("screen", homeyConfigScreen2Url, this, "homeyConfigScreen2");
 		registry.registerWidget("screen", homeyFlowScreenUrl, this, "homeyFlowScreen");
-		registry.registerWidget("screen", homeyDevicesScreenUrl, this, "homeyDevicesScreen");
+		registry.registerWidget("screen", homeyDevicesSelectScreenUrl, this, "homeyDevicesSelectScreen");
 		registry.registerWidget("screen", homeyFlowSelectScreenUrl, this, "homeyFlowSelectScreen");
 		registry.registerWidget("screen", homeyFavoritesScreenUrl, this, "homeyFavoritesScreen");
 	}

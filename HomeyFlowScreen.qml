@@ -5,7 +5,7 @@ import FileIO 1.0
 
 Screen {
 	id: homeyScreen
-	screenTitle: "Homey"
+	screenTitle: "Homey flows"
 	
 	property bool debugOutput : app.debugOutput
 	property int getFlowsInterval :5000

@@ -395,7 +395,7 @@ Screen {
         var xhr = new XMLHttpRequest()
 
 		if (app.testurl){
-			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+			var url = 'file:///root/homey.txt'
 		}else{
 			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
 		}
@@ -569,7 +569,7 @@ Screen {
         var xhr = new XMLHttpRequest()
 		
 		if (app.testurl){
-			var url = 'file:///qmf/qml/apps/homey/homey.txt'
+			var url = 'file:///root/homey.txt'
 		}else{
 			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
 		}

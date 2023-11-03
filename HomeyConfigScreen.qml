@@ -229,7 +229,11 @@ Screen {
 		var jwt = app.token
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
         var xhr = new XMLHttpRequest()
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		if (app.testurl){
+			var url = 'file:///root/homey.txt'
+		}else{
+			var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device'
+		}
         xhr.open("GET", url, true);
         xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
         xhr.setRequestHeader( 'content-type', 'application/json');

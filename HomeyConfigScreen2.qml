@@ -65,8 +65,8 @@ Screen {
 			topMargin: isNxt? 8:6
 		}
 		onClicked: {
-			if (app.homeyDevicesScreen){	
-				app.homeyDevicesScreen.show();
+			if (app.homeyDevicesSelectScreen){	
+				app.homeyDevicesSelectScreen.show();
 			}
 		}
 	}
