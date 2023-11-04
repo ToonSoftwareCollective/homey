@@ -8,8 +8,9 @@ Screen {
 	property bool debugOutput : app.debugOutput
 	screenTitle: qsTr("Homey account instellingen")
 
-	property string    	tmpemail: app.email;
-	property string		tmppassword: app.password;
+	property string    	tmpemail: app.email
+	property string		tmppassword: app.password
+	property string		tmphidden: "xxx"
 	property string		tmpSavePassWord: app.password
 	property string		tmpcloudid: app.cloudid
 	property string 	lanIp: "0.0.0.0"
@@ -19,10 +20,10 @@ Screen {
 	
 	onShown: {
 		if (debugOutput) console.log("*********homey configScreen loaded")
-		addCustomTopRightButton(rightButtonText);
+		addCustomTopRightButton(rightButtonText)
 		userNameLabel.inputText = tmpemail;
-		passWordLAbel.inputText = tmppassword;
-		cloudIdLAbel.inputText = tmpcloudid;
+		passWordLAbel.inputText = tmphidden
+		cloudIdLAbel.inputText = tmpcloudid
 		if (debugOutput) console.log("*********homey tmpemail: " + tmpemail)
 		if (debugOutput) console.log("*********homey tmppassword " + tmppassword)
 		if (debugOutput) console.log("*********homey tmpcloudid " + tmpcloudid)
@@ -116,7 +117,7 @@ Screen {
 		}
 		onClicked: {
 			rightButtonText= "Opslaan en terug";
-			qkeyboard.open("Wachtwoord", passWordLAbel.inputText, savePassWord)
+			qkeyboard.open("Wachtwoord", tmppassword, savePassWord)
 		}
 	}
 	
@@ -161,7 +162,7 @@ Screen {
 		anchors {
 			left: titleText.left
 			top: tipText.bottom
-			topMargin: isNxt ? 16 : 12
+			topMargin: isNxt ? 30 : 24
 		}
 		font {
 			pixelSize: qfont.bodyText

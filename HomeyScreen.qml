@@ -333,6 +333,18 @@ Screen {
 		visible: false
 	}
 	
+	Text {
+		id: readyText
+		text: app.warning
+		font.pixelSize:  isNxt? 32:26
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
+		}
+	}
 	
 	function listModelSort1() {
         var indexes = new Array(homeyModel.count);
@@ -407,7 +419,7 @@ Screen {
 							
 								capabilityLong = JsonObject[key].capabilities[capa]
 
-								if(settingsString.indexOf(String(key + "_" + capabilityLong))<0){
+								if(settingsString.indexOf(String(key + "_" + capabilityLong + "\""))<0){
 									
 									capabilityShort = capabilityLong
 									capabilityShort = capabilityShort.split("meter_").join("mtr_");

@@ -1,5 +1,6 @@
     function getNewToken(){
         if (debugOutput) console.log("*********Homey Start getNewToken")
+		warning = "Verbinding met Homey maken."
         var body= 'email=' +encodeURIComponent(email) + '&password=' + encodeURIComponent(password) + '&otptoken='
         var xhr = new XMLHttpRequest()
         var url = "https://accounts.athom.com/login"
@@ -37,6 +38,7 @@
 
     function step2(token){
         if (debugOutput) console.log("*********Homey Start step2")
+		warning = "Verbinding met Homey maken.."
         var body= 'email=' +encodeURIComponent(email) + '&password=' + encodeURIComponent(password) + '&otptoken='
         var xhr = new XMLHttpRequest()
         var url = 'https://accounts.athom.com/oauth2/authorise?client_id=' + client_id + '&redirect_uri=' + encodeURIComponent(redirect_url) + '&response_type=code&user_token=' + token
@@ -66,6 +68,7 @@
 
     function step3(csrf,token){
         if (debugOutput) console.log("*********Homey Start step3")
+		warning = "Verbinding met Homey maken..."
         var body=  "resource=resource.homey." + cloudid + "&_csrf=" + csrf + "&allow=Allow"
         console.log(body)
         var xhr = new XMLHttpRequest()
@@ -97,6 +100,7 @@
 
     function step4(csrf,token,code){
         if (debugOutput) console.log("*********Homey Start step4")
+		warning = "Verbinding met Homey maken...."
         var body= 'client_id=' + encodeURIComponent(client_id) +  '&client_secret=' + encodeURIComponent(client_secret) + '&grant_type=authorization_code&code=' + encodeURIComponent(code)
         var xhr = new XMLHttpRequest()
         var url = 'https://api.athom.com/oauth2/token'
@@ -128,6 +132,7 @@
 
     function step5(accesstoken, refreshtoken){
         if (debugOutput) console.log("*********Homey Start step5")
+		warning = "Verbinding met Homey maken....."
         var body= "client_id=5a8d4ca6eb9f7a2c9d6ccf6d&client_secret=" + encodeURIComponent(client_secret) + "&grant_type=refresh_token&refresh_token=" + refreshtoken
         console.log(body)
         var xhr = new XMLHttpRequest()
@@ -161,6 +166,7 @@
 
     function step6(jwt){
         if (debugOutput) console.log("*********Homey Start step6")
+		warning = "Verbinding met Homey maken......"
         var xhr = new XMLHttpRequest()
         var url = 'https://' + cloudid + '.connect.athom.com/api/manager/users/login'
         xhr.open("POST", url, true);
@@ -181,6 +187,10 @@
                     if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
 					var response = xhr.responseText;
+					if (xhr.status === 0){
+					if (debugOutput) console.log("*********Homey getNewToken status 0")
+						warning = "Foutieve CloudID ingevoerd?"
+					}
 					if (response.indexOf("mesh_node_offline") >-1){
 					if (debugOutput) console.log("*********Homey getNewToken mesh_node_offline")
 						warning = "Foutieve CloudID ingevoerd"
@@ -216,7 +226,8 @@
                 } else {
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
 					if (debugOutput) console.log("*********Homey getting new Token")
-					refreshToken()
+					getNewToken()
+					//refreshToken()
                 }
             }
         }
