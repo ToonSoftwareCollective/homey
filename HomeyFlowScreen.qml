@@ -169,6 +169,19 @@ Screen {
 		visible: false
 	}
 	
+	Text {
+		id: readyText
+		text: app.warning
+		font.pixelSize:  isNxt? 32:26
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
+		}
+	}
+	
 	
 	function listModelSort1() {
         var indexes = new Array(homeyModel.count);

@@ -29,14 +29,7 @@ Screen {
 	onCustomButtonClicked:{
 		saveSettings()
 	}
-	
-	Component.onCompleted: {
-		app.clearModels.connect(clearModel);
-	}
 
-	function clearModel() {
-		homeyModel.clear()
-	}
 	
 	function readSettings() {
 		if (debugOutput) console.log("*********homey readSettings()")
@@ -50,17 +43,10 @@ Screen {
 		}
     }
 	
-	function sleep(milliseconds) {
-		var start = new Date().getTime();
-		while ((new Date().getTime() - start) < milliseconds )  {
-		}
-    }
 	
 	onShown: {
 		readyText.visible = false
 		readSettings()
-		refreshThrobber.visible = true
-		sleep(500)
 		addCustomTopRightButton("Opslaan");
 		getDevices()
 	}
@@ -410,6 +396,19 @@ Screen {
 	}
 	
 	Text {
+		id: warningText
+		text: app.warning
+		font.pixelSize:  isNxt? 32:26
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
+		}
+	}
+	
+	Text {
 		id: readyText
 		text: "Opgeslagen"
 		font.pixelSize:  isNxt? 32:26
@@ -441,6 +440,7 @@ Screen {
 
     function getDevices(){
         if (debugOutput) console.log("*********Homey Start getDevices()")
+		refreshThrobber.visible = true
         var jwt = app.token
 		homeyModel.clear()
 		if (debugOutput) console.log("*********Homey Bearer : " + jwt)
@@ -482,13 +482,13 @@ Screen {
 							
 								capabilityLong = JsonObject[key].capabilities[capa]
 								
-								if(settingsString.indexOf(String(key + "_" + capabilityLong))>-1){
+							    if(settingsString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
 									checked = false
 								}else{
 									checked = true
 								}
 								
-								if(settingsFavString.indexOf(String(key + "_" + capabilityLong))>-1){
+								if(settingsFavString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
 									checkedfav = false
 								}else{
 									checkedfav = true

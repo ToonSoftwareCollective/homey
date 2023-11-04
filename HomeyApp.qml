@@ -16,7 +16,7 @@ App {
 	property bool 	debugOutput: false
 	property bool 	testurl: false
 	
-	property url 	tileUrl :  "HomeyTile.qml"
+	property url 	tileUrl : "HomeyTile.qml"
 	property HomeyConfigScreen homeyConfigScreen
 	property url 	homeyConfigScreenUrl : "HomeyConfigScreen.qml"
 	property url    trayUrl : "MediaTray.qml";
@@ -35,10 +35,7 @@ App {
 	property HomeyConfigScreen2 homeyConfigScreen2
 	property url 	homeyConfigScreen2Url : "HomeyConfigScreen2.qml"
 
-	
 	property url 	thumbnailIcon: "qrc:/tsc/LightBulbOn.png"
-	
-	
 	property bool 	tokenOK: false
 		
 	property string email : ''
