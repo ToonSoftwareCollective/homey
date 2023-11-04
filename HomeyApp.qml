@@ -13,7 +13,7 @@ import "HomeyTokenFunctions.js" as HomeyTokenFunctions
 App {
 	id: root
 	
-	property bool 	debugOutput: false
+	property bool 	debugOutput: true
 	property bool 	testurl: false
 	
 	property url 	tileUrl : "HomeyTile.qml"
@@ -52,7 +52,6 @@ App {
 	
 	signal clearModels()
 	
-
 	property variant settings : {
 		"email" : "",
 		"password" : "",
@@ -70,7 +69,37 @@ App {
 		source: "file:///mnt/data/tsc/homey.userSettings.json"
  	}
 	
+
+	FileIO {
+		id: fileList
+	}
 	
+	FileIO {
+		id: fileNameIO
+	}
+	
+	function removeFiles(){
+        if (debugOutput) console.log("*********Homey Start removeFiles()!")
+		var path = "file:///mnt/data/tsc/appData"
+		fileList.source = Qt.resolvedUrl(path)
+		var filenames = fileList.entryList(["homey*.*"])
+		console.log("*********Homey Start filenames: " + filenames)
+		for(var i in filenames) {
+			console.log("*********Homey Start remove filenames:"  + path + "/" + filenames[i])
+			fileNameIO.source = path + "/" + filenames[i]
+			fileNameIO.write("")
+		}
+		homeySettingsFile.write("")
+		email = ''
+		password = ''
+		cloudid  = ''
+		token  = ''
+		rftoken = ''
+		actoken = ''
+		tokenOK = false
+		warning = "Alle gegevens gewist"
+    }
+
 	function init() {
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
