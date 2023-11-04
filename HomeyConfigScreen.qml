@@ -20,6 +20,7 @@ Screen {
 	
 	onShown: {
 		if (debugOutput) console.log("*********homey configScreen loaded")
+		app.warning = ""
 		addCustomTopRightButton(rightButtonText)
 		userNameLabel.inputText = tmpemail;
 		passWordLAbel.inputText = tmphidden
@@ -201,8 +202,26 @@ Screen {
 		}
 		width: isNxt? parent.width - 40:parent.width - 32
 		wrapMode: Text.WordWrap
-		text: "Fout, waarschijnlijk zijn de inloggegeven niet correct? Eerst invullen. Daarna opslaan en als de toon koppelt dan terug naar dit scherm en downloaden."
+		text: ""
 		visible: false
+	}
+	
+	
+	StandardButton {
+		id: removefilesButton
+		text: "Verwijder instellingen en Homey files van toon"
+		height: isNxt? 45:36
+		anchors {
+			right: parent.right
+			top: downloadButton.top
+			rightMargin: isNxt? 20:16
+		}
+		onClicked: {
+			refreshThrobber.visible = true
+			app.removeFiles()
+			readyText.visible = true
+			throbberTimer.running = true
+		}
 	}
 	
 	
@@ -216,6 +235,20 @@ Screen {
 		}
 		visible: false
 	}
+	
+	Text {
+		id: readyText
+		text: app.warning
+		font.pixelSize:  isNxt? 32:26
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: refreshThrobber.bottom
+			topMargin: 10
+		}
+	}
+	
 	
 	function sleep(milliseconds) {
       var start = new Date().getTime();
@@ -264,8 +297,7 @@ Screen {
             }
         }
         xhr.send();
-    }
-	
+    }	
 	
 	
 	BxtDiscoveryHandler {
@@ -285,6 +317,21 @@ Screen {
 				lanIp = address;
 			}
 		}
+	}
+	
+	
+		
+	Timer{
+		id: throbberTimer
+		interval: 2000
+		triggeredOnStart: false
+		running: false
+		repeat: false
+		onTriggered:
+			{
+				refreshThrobber.visible = false
+				readyText.visible = false
+			}
 	}
 
 	
