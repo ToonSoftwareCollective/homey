@@ -185,9 +185,9 @@ Screen {
 						isSwitchedOn: stringToBoolean(model.value)
 						onSelectedChangedByUser: {
 							if (isSwitchedOn) {
-								setState("onoff", model.id, true)
+								app.setState("onoff", model.id, true)
 							} else {
-								setState("onoff",model.id, false)
+								app.setState("onoff",model.id, false)
 							}
 						}
 						visible: (model.available & (model.type2=="toggle"))
@@ -204,7 +204,7 @@ Screen {
 						}
 						iconSource: "qrc:/tsc/up.png"
 						onClicked: {
-							setState("windowcoverings_state",model.id, "up")
+							app.setState("windowcoverings_state",model.id, "up")
 						}
 						visible: (model.available & (model.type2=="3 button"))
 					}
@@ -221,7 +221,7 @@ Screen {
 						}
 						iconSource: "qrc:/tsc/stop.png"
 						onClicked: {
-							setState("windowcoverings_state",model.id, "idle")
+							app.setState("windowcoverings_state",model.id, "idle")
 						}
 						visible: (model.available & (model.type2=="3 button"))
 					}
@@ -238,7 +238,7 @@ Screen {
 						}
 						iconSource: "qrc:/tsc/down.png"
 						onClicked: {
-							setState("windowcoverings_state",model.id, "down")
+							app.setState("windowcoverings_state",model.id, "down")
 						}
 						visible: (model.available & (model.type2=="3 button"))
 					}		 
@@ -663,34 +663,6 @@ Screen {
         }
         xhr.send();
     }
-
-
-    function setState(type,switchId, valSet){
-        if (debugOutput) console.log("*********Homey Start getDevices()")
-		var jwt = app.token
-		
-		if (debugOutput) console.log("*********Homey switchId : " + switchId)
-        var xhr = new XMLHttpRequest()
-        var url = 'https://' + app.cloudid + '.connect.athom.com/api/' + 'manager/devices/device/' + switchId + '/capability/' + type
-        if (debugOutput) console.log("*********Homey url : " + url)
-		xhr.open("PUT", url, true);
-        xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
-        xhr.setRequestHeader( 'content-type', 'application/json');
-        xhr.onreadystatechange = function() { // Call a function when the state changes.
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
-                        if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
-                        if (debugOutput) console.log("*********Homey " + xhr.responseText)
-						updateDevices()
-                } else {
-                    if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
-                    if (debugOutput) console.log("*********Homey " + xhr.responseText)
-                }
-            }
-        }
-        xhr.send(JSON.stringify({ "value": valSet }))
-    }
-	
 
 	Timer{
 		id: getDevicesTimer

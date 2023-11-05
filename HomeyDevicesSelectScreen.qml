@@ -8,13 +8,22 @@ Screen {
 	screenTitle: "Homey kies apparaten"
 	
 	property bool debugOutput : app.debugOutput
-	property int getDevicesInterval :5000
 	property string settingsString : ""
 	property string settingsFavString : ""
+	property string settingsTileString : ""
+	
+	property int countChecked : 0
+	property bool starting : true
+	property bool reboodNeeded : false
 	
 	property variant devicesArray : []
 	property variant devicesFavArray : []
+	property variant devicesTileArray : []
 	
+	FileIO {
+		id: appFile;	
+		source: "file:///HCBv2/qml/apps/homey/HomeyApp.qml"
+	}
 	
 	FileIO {
 		id: homeySettingsFile
@@ -24,6 +33,16 @@ Screen {
 	FileIO {
 		id: homeySettingsFavFile
 		source: "file:////mnt/data/tsc/appData/homey.favorites.json"
+ 	}
+	
+	FileIO {
+		id: homeySettingsTileFile
+		source: "file:////mnt/data/tsc/appData/homey.tiles.json"
+ 	}
+	
+	FileIO {
+		id: homeySettingsTileFile2
+		source: "file:////mnt/data/tsc/appData/homey.tilesjson.json"
  	}
 	
 	onCustomButtonClicked:{
@@ -41,6 +60,10 @@ Screen {
 			settingsFavString = String(homeySettingsFavFile.read());
 		} catch(e) {
 		}
+		try {
+			settingsTileString = String(homeySettingsTileFile2.read());
+		} catch(e) {
+		}
     }
 	
 	
@@ -50,7 +73,6 @@ Screen {
 		addCustomTopRightButton("Opslaan");
 		getDevices()
 	}
-	
 
 	function stringToBoolean(inputString) {
         return (inputString === "true") ? true : false;
@@ -59,7 +81,7 @@ Screen {
 
 	Text {
 		id: screenTip
-		text: "Geef in dit scherm aan welke apparaten favoriet zijn en welke zichtbaar moeten zijn."
+		text: "Kies tegels (4), favorieten en welke apparaten zichtbaar moeten zijn"
 		font.pixelSize:  isNxt? 20:16
 		font.family: qfont.bold.name
 		color: "black"
@@ -183,6 +205,32 @@ Screen {
 		}
 	}
 	
+
+	Text {
+		id: tileName
+		text: "Tegel (max. 4)"
+		font.pixelSize:  isNxt? 18:14
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			right: favName.left
+			rightMargin: isNxt? 10:8
+			top: parent.top
+			topMargin: 0
+		}
+	}
+	
+	Text {
+		id: tileCount
+		text: "Reeds " + countChecked
+		font.pixelSize:  isNxt? 18:14
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			left: tileName.left
+			top: tileName.bottom
+		}
+	}
 
    Rectangle {
 		id: frame1
@@ -308,6 +356,55 @@ Screen {
 						}
 					}
 					
+					StandardCheckBox {
+						id: checkBoxTiles
+						height: isNxt? 40:32
+						width: isNxt? 40:32
+						anchors {
+							right: checkBoxFav.left
+							rightMargin: isNxt? 30:24
+						}
+						backgroundColor: colors.graphCheckboxTextBackground
+						squareBackgroundColor:  "#FFFFFF"
+						squareSelectedColor: colors.graphCheckboxSquare
+						squareUnselectedColor: squareSelectedColor
+						fontColorSelected: colors.cbText
+						squareRadius: isNxt? 18:14
+						smallSquareRadius: isNxt? 16:13
+						squareOffset: 0
+						spacing: Math.round(3 * horizontalScaling)
+						leftMargin: Math.round(1 * horizontalScaling)
+						rightMargin: 0
+						checkMarkStartXOffset: isNxt? 3:3
+						checkMarkStartYOffset: isNxt? 6:5
+						fontFamilySelected: qfont.regular.name
+						fontPixelSize: isNxt? 60:48
+						topClickMargin: isNxt? 10:8
+						bottomClickMargin: isNxt? 10:8
+						selected : model.checkedtile
+						onSelectedChanged: {
+							if (debugOutput) console.log("*********Homey homeyModel starting : " + starting)
+							if(!starting){
+								reboodNeeded = true
+								if (selected) {
+									countChecked = countCheckedItems()
+									if (countChecked < app.maxtiles){
+										model.checkedtile = true
+									}else{
+										readyText.text = "Maximaal " + app.maxtiles + " tegels"
+										readyText.visible = true
+										throbberTimer.running = true
+										model.checkedtile = false
+										checkBoxTiles.selected = false
+									}
+								} else {
+									model.checkedtile = false
+								}
+							}
+							countChecked = countCheckedItems()
+						}
+					}
+					
 					Text {
 						id: switchToggle
 						text: "Aan/Uit"
@@ -315,7 +412,7 @@ Screen {
 						font.family: qfont.bold.name
 						color: "black"
 						anchors {
-							right: checkBoxFav.left
+							right: checkBoxTiles.left
 							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 20:16
 						}
@@ -329,7 +426,7 @@ Screen {
 						font.family: qfont.bold.name
 						color: "black"
 						anchors {
-							right: checkBoxFav.left
+							right: checkBoxTiles.left
 							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 20:16
 						}
@@ -345,7 +442,7 @@ Screen {
 						color: "black"
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: checkBoxTiles.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: (model.type== "measure")
@@ -359,7 +456,7 @@ Screen {
 						color: (model.value === "true")? "red":"limegreen"
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: checkBoxTiles.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: ((model.type === "alarm" || model.type === "heating"))
@@ -373,14 +470,14 @@ Screen {
 						height: isNxt? 30:24
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: checkBoxTiles.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: ((model.type === "lock"))
 					}
-				}
-            snapMode: GridView.SnapToRow
-		}
+				}	
+        }
+	
 	}
 
 
@@ -421,8 +518,16 @@ Screen {
 		}
 	}
 	
+	function countCheckedItems() {
+        var count = 0;
+        for (var i = 0; i < homeyModel.count; i++) {
+            if (homeyModel.get(i).checkedtile === true) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-	
 	function listModelSort1() {
         var indexes = new Array(homeyModel.count);
         for (var i = 0; i < homeyModel.count; i++) indexes[i] = i;
@@ -470,16 +575,15 @@ Screen {
 					var number = 0
 					var checked = false
 					var checkedfav = false
+					var checkedtile = false
 
 					for (var key in JsonObject) {
 						if (JsonObject.hasOwnProperty(key)) {
 							var zoneName = ""
 							isAvailable = JsonObject[key].available
-							if (debugOutput) console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
+							//if (debugOutput) console.log("*********Homey " + key + " - " + JsonObject[key].zoneName + " - " + JsonObject[key].name + " - " + JsonObject[key].capabilities)
+							
 							for (var capa in JsonObject[key].capabilities){
-							
-								if (debugOutput) console.log("*********Homey checked" + checked)
-							
 								capabilityLong = JsonObject[key].capabilities[capa]
 								
 							    if(settingsString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
@@ -494,8 +598,14 @@ Screen {
 									checkedfav = true
 								}
 
+								if(settingsTileString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
+									checkedtile = true
+								}else{
+									checkedtile = false
+								}
+
 								capabilityShort = capabilityLong
-								if (debugOutput) console.log("*********Homey short   " + capabilityShort);
+								//if (debugOutput) console.log("*********Homey short   " + capabilityShort);
 							
 								if(JsonObject[key].hasOwnProperty("zoneName") && JsonObject[key].zoneName !== 'undefined' && JsonObject[key].zoneName !== null){
 									zoneName = JsonObject[key].zoneName
@@ -519,7 +629,7 @@ Screen {
 
 								if (capabilityLong.indexOf("onoff") > -1 || capabilityLong.indexOf("windowcoverings") > -1){
 									if (capabilityLong === "onoff" && capabilityLong.indexOf("windowcoverings") === -1){
-										homeyModel.append({checked: checked , checkedfav: checkedfav, number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), available: isAvailable, up: upState, down: downState})
+										homeyModel.append({checkedtile:checkedtile, checked: checked , checkedfav: checkedfav, number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), unit: units, available: isAvailable, up: upState, down: downState})
 									
 									}
 
@@ -543,14 +653,14 @@ Screen {
 												downState = false
 												break
 										}
-										homeyModel.append({checked: checked , checkedfav: checkedfav,number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), available: isAvailable, up: upState, down: downState})
+										homeyModel.append({checkedtile:checkedtile, checked: checked , checkedfav: checkedfav,number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState})
 									}
 								}
 
                                 if (capabilityLong.indexOf("alarm") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({checkedtile:checkedtile,checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
 										}
 									}
 								}
@@ -558,7 +668,7 @@ Screen {
 								if (capabilityLong.indexOf("hotWaterState") > -1 || capabilityLong.indexOf("burnerState") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({checkedtile:checkedtile, checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
 										}
 									}
 								}
@@ -567,7 +677,7 @@ Screen {
 								if (capabilityLong.indexOf("locked") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({checkedtile:checkedtile, checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
 										}
 									}
 								}
@@ -596,15 +706,14 @@ Screen {
 									capabilityLong.indexOf("programState") > -1   ||
 									capabilityLong.indexOf("meter_power") > -1
 								){
-									homeyModel.append({checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+									homeyModel.append({checkedtile:checkedtile, checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
 								}
 							}
 							number++
 						}
 					}
-					
 					listModelSort1()
-					refreshThrobber.visible = false
+					smallDelayTimer.running=true
                 } else {
 					if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
@@ -622,22 +731,65 @@ Screen {
 		refreshThrobber.visible = true
 		devicesArray = []
 		devicesFavArray = []
+		var tilecount = 0
+		var tilesJSON = []
 		for (var i = 0; i < homeyModel.count; i++) {
 			var item = homeyModel.get(i);
-			if (debugOutput) console.log("*********homey saveDeviceSettings() item.checked : " + item.checked)
 			if (item.checked === false){
 				devicesArray.push(item.id + "_" + item.capa)
 			}
 			if (item.checkedfav === false){
 				devicesFavArray.push(item.id + "_" + item.capa)
 			}
+			if (item.checkedtile === true){
+				tilesJSON.push({ id: tilecount , keycapa: String(item.id + "_" + item.capa), key: item.id ,zone: item.zone, type:item.type, capa:item.capa, capaShort: item.capaShort, devicename: item.devicename, value: item.value, available:item.available , up: item.up, down: item.down, unit: item.unit})
+				tilecount++
+			}
 		}
+		for(var i = 0; i < ( app.maxtiles - tilecount); i++) {
+				if (debugOutput) console.log("*********homey extra")
+				tilesJSON.push({ id: tilecount , keycapa: "", key: "" ,zone: "", type:"", capa:"", capaShort: "", devicename: "Niet beschikbaar", value: "", available:false , up: false, down: false, unit: ""})
+				tilecount++
+		}
+		
+		countChecked = countCheckedItems()
+		var tileString = ""
+		for(var i2 = 1; i2 <= countChecked; i2++) {
+				if (debugOutput) console.log("*********homey extra")
+				tileString += "registry.registerWidget(\"tile\", tileUrl" + i2 + ", this, null, {thumbLabel: qsTr(\"Homey_" + i2 + "\"), thumbIcon: thumbnailIcon, thumbCategory: \"general\", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: \"center\"})\n"	
+		}
+		if (debugOutput) console.log("*********homey tileString" + tileString)
+		
 		homeySettingsFile.write(JSON.stringify(devicesArray));
 		homeySettingsFavFile.write(JSON.stringify(devicesFavArray));
+		homeySettingsTileFile2.write(JSON.stringify(tilesJSON));
+		app.refreshTiles()
 		if (debugOutput) console.log("*********homey saveSettings() file saved")
-		readyText.visible = true
-		throbberTimer.running = true
+		
+		if(reboodNeeded){
+			var appfileString =  appFile.read()
+			if (debugOutput) console.log("*********toonTemp old appfileString: " + appfileString)
+			var oldappfileString = appfileString
+			var oldappfilelength = appfileString.length
+			var n201 = appfileString.indexOf('//TILE//') + '//TILE//'.length
+			var n202 = appfileString.indexOf('//TILE END//',n201)
+			if (debugOutput) console.log("*********toonTemp old WidgetSettings: " + appfileString.substring(n201, n202))
+			var newappfileString = appfileString.substring(0, n201) + "\n" + tileString + "\n" + appfileString.substring(n202, appfileString.length)
+
+			appFile.write( newappfileString)
+			if (debugOutput) console.log("*********toonTemp new WidgetSettings saved ")
+		
+			readyText.text = "Nieuwe config opgeslagen, herstart nodig" + "..." 
+			readyText.visible = true
+			rebootTimer.running = true
+		}else{
+			readyText.text = "Opgeslagen"
+			readyText.visible = true
+			throbberTimer.running = true
+		}
+
 	}
+	
 	
 	Timer{
 		id: throbberTimer
@@ -651,4 +803,30 @@ Screen {
 				readyText.visible = false
 			}
 	}
+	
+	Timer{
+		id: smallDelayTimer
+		interval: 1000
+		triggeredOnStart: false
+		running: false
+		repeat: false
+		onTriggered:
+			{
+				starting = false
+				refreshThrobber.visible = false
+			}
+	}
+	
+	Timer {
+		id: rebootTimer
+		interval: 3000
+		repeat:false
+		running: false
+		triggeredOnStart: false
+		onTriggered: {
+			Qt.quit()
+		}
+    }
+
+
 }
