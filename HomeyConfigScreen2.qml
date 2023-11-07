@@ -102,4 +102,35 @@ Screen {
 		}
 	}
 	
+	Text {
+		id: tileName
+		text: "Klik op de knop onder om de tegels te kiezen."
+		font.pixelSize:  isNxt? 18:14
+		font.family: qfont.bold.name
+		color: "black"
+		anchors {
+			left: parent.left
+			leftMargin: isNxt? 10:8
+			top: flowButton.bottom
+			topMargin: isNxt? 10:8
+		}
+	}
+	
+	StandardButton {
+		id: tileButton
+		text: "Tegels"
+		height: isNxt? 45:36
+		anchors {
+			left: parent.left
+			leftMargin: isNxt? 10:8
+			top: tileName.bottom
+			topMargin: isNxt? 8:6
+		}
+		onClicked: {
+			if (app.homeyTilesSelectScreen){	
+				app.homeyTilesSelectScreen.show();
+			}
+		}
+	}
+	
 }

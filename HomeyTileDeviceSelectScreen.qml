@@ -5,51 +5,26 @@ import FileIO 1.0
 
 Screen {
 	id: homeyScreen
-	screenTitle: "Homey kies apparaten"
+	screenTitle: (app.calledFromTile === 99)? "Homey kies apparaat voor nieuwe tegel " : "Homey kies apparaat voor tegel " + app.calledFromTile
 	
 	property bool debugOutput : app.debugOutput
-	property string settingsString : ""
-	property string settingsFavString : ""
-
+	
+	property variant devicesTileArray : []
 	property bool starting : true
-	
-	property variant devicesArray : []
-	property variant devicesFavArray : []
-	
+	property string settingsTileString : ""
+
 	FileIO {
-		id: appFile;	
-		source: "file:///HCBv2/qml/apps/homey/HomeyApp.qml"
-	}
-	
-	FileIO {
-		id: homeySettingsFile
-		source: "file:////mnt/data/tsc/appData/homey.devices.json"
+		id: homeySettingsTileFile2
+		source: "file:////mnt/data/tsc/appData/homey.tilesjsoncopy.json"
  	}
-	
-	FileIO {
-		id: homeySettingsFavFile
-		source: "file:////mnt/data/tsc/appData/homey.favorites.json"
- 	}
-	
-	FileIO {
-		id: homeySettingsTileFile
-		source: "file:////mnt/data/tsc/appData/homey.tiles.json"
- 	}
-	
-	
-	onCustomButtonClicked:{
-		saveSettings()
-	}
 
 	
 	function readSettings() {
 		if (debugOutput) console.log("*********homey readSettings()")
 		try {
-			settingsString = String(homeySettingsFile.read());
-		} catch(e) {
-		}
-		try {
-			settingsFavString = String(homeySettingsFavFile.read());
+			settingsTileString = String(homeySettingsTileFile2.read());
+			devicesTileArray = JSON.parse(settingsTileString)
+			if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 		} catch(e) {
 		}
     }
@@ -58,7 +33,6 @@ Screen {
 	onShown: {
 		readyText.visible = false
 		readSettings()
-		addCustomTopRightButton("Opslaan");
 		getDevices()
 	}
 
@@ -69,7 +43,7 @@ Screen {
 
 	Text {
 		id: screenTip
-		text: "Kies tegels (4), favorieten en welke apparaten zichtbaar moeten zijn"
+		text: "Kies welk apparaat op de tegel moet komen"
 		font.pixelSize:  isNxt? 20:16
 		font.family: qfont.bold.name
 		color: "black"
@@ -81,119 +55,6 @@ Screen {
 		}
 	}
 	
-	Text {
-		id: visibleName
-		text: "Zichtbaar"
-		font.pixelSize:  isNxt? 18:14
-		font.family: qfont.bold.name
-		color: "black"
-		anchors {
-			right: parent.right
-			rightMargin: isNxt? 10:8
-			top: parent.top
-			topMargin: 0
-		}
-	}
-	
-	StandardCheckBox {
-		id: checkBoxAllDev
-		height: isNxt? 40:32
-		width: isNxt? 40:32
-		anchors {
-			right: frame1.right
-			rightMargin: isNxt? 25:20
-			top: visibleName.bottom
-		}
-		backgroundColor: colors.graphCheckboxTextBackground
-		squareBackgroundColor:  "#FFFFFF"
-		squareSelectedColor: colors.graphCheckboxSquare
-		squareUnselectedColor: squareSelectedColor
-		fontColorSelected: colors.cbText
-		squareRadius: isNxt? 18:14
-		smallSquareRadius: isNxt? 16:13
-		squareOffset: 0
-		spacing: Math.round(3 * horizontalScaling)
-		leftMargin: Math.round(1 * horizontalScaling)
-		rightMargin: 0
-		checkMarkStartXOffset: isNxt? 3:3
-		checkMarkStartYOffset: isNxt? 6:5
-		fontFamilySelected: qfont.regular.name
-		fontPixelSize: isNxt? 60:48
-		topClickMargin: isNxt? 10:8
-		bottomClickMargin: isNxt? 10:8
-		selected : false
-		onSelectedChanged: { 
-			if (selected) {
-				for (var i = 0; i < homeyModel.count; i++) {
-					var item = homeyModel.get(i);
-					homeyModel.setProperty(i, "checked", true)
-				}
-			} else {
-				for (var i = 0; i < homeyModel.count; i++) {
-					var item = homeyModel.get(i);
-					homeyModel.setProperty(i, "checked", false)
-				}
-			}
-		}
-	}
-	
-	Text {
-		id: favName
-		text: "Favoriet"
-		font.pixelSize:  isNxt? 18:14
-		font.family: qfont.bold.name
-		color: "black"
-		anchors {
-			right: visibleName.left
-			rightMargin: isNxt? 10:8
-			top: parent.top
-			topMargin: 0
-		}
-	}
-	
-	StandardCheckBox {
-		id: checkBoxAllFav
-		height: isNxt? 40:32
-		width: isNxt? 40:32
-		anchors {
-			right: checkBoxAllDev.left
-			rightMargin: isNxt? 30:24
-			top: favName.bottom
-		}
-		backgroundColor: colors.graphCheckboxTextBackground
-		squareBackgroundColor:  "#FFFFFF"
-		squareSelectedColor: colors.graphCheckboxSquare
-		squareUnselectedColor: squareSelectedColor
-		fontColorSelected: colors.cbText
-		squareRadius: isNxt? 18:14
-		smallSquareRadius: isNxt? 16:13
-		squareOffset: 0
-		spacing: Math.round(3 * horizontalScaling)
-		leftMargin: Math.round(1 * horizontalScaling)
-		rightMargin: 0
-		checkMarkStartXOffset: isNxt? 3:3
-		checkMarkStartYOffset: isNxt? 6:5
-		fontFamilySelected: qfont.regular.name
-		fontPixelSize: isNxt? 60:48
-		topClickMargin: isNxt? 10:8
-		bottomClickMargin: isNxt? 10:8
-		selected : false
-		onSelectedChanged: { 
-			if (selected) {
-				for (var i = 0; i < homeyModel.count; i++) {
-					var item = homeyModel.get(i);
-					homeyModel.setProperty(i, "checkedfav", true)
-				}
-			} else {
-				for (var i = 0; i < homeyModel.count; i++) {
-					var item = homeyModel.get(i);
-					homeyModel.setProperty(i, "checkedfav", false)
-				}
-			}
-		}
-	}
-	
-
    Rectangle {
 		id: frame1
 		width: isNxt? (parent.width )-15: (parent.width )-12
@@ -202,10 +63,10 @@ Screen {
 		border.width : 3
 
 		anchors {
-			top: checkBoxAllDev.bottom
+			top: parent.top
 			left: parent.left
 			leftMargin: isNxt? 10:8
-			topMargin: isNxt? 10:8
+			topMargin: isNxt? 50:40
 		}
 
 		ListModel {
@@ -244,80 +105,32 @@ Screen {
 						}
 					}
 					
-					StandardCheckBox {
-						id: checkBox
-						height: isNxt? 40:32
-						width: isNxt? 40:32
+					StandardButton {
+						id: startButton
+						text: "Kies"
+						height: isNxt? 35:28
 						anchors {
 							right: parent.right
+							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 10:8
 						}
-						backgroundColor: colors.graphCheckboxTextBackground
-						squareBackgroundColor:  "#FFFFFF"
-						squareSelectedColor: colors.graphCheckboxSquare
-						squareUnselectedColor: squareSelectedColor
-						fontColorSelected: colors.cbText
-						squareRadius: isNxt? 18:14
-						smallSquareRadius: isNxt? 16:13
-						squareOffset: 0
-						spacing: Math.round(3 * horizontalScaling)
-						leftMargin: Math.round(1 * horizontalScaling)
-						rightMargin: 0
-						checkMarkStartXOffset: isNxt? 3:3
-						checkMarkStartYOffset: isNxt? 6:5
-						fontFamilySelected: qfont.regular.name
-						fontPixelSize: isNxt? 60:48
-						topClickMargin: isNxt? 10:8
-						bottomClickMargin: isNxt? 10:8
-						selected : model.checked
-						onSelectedChanged: {
-							if (selected) {
-								model.checked = true
-								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
-							} else {
-								model.checked = false
-								if (debugOutput) console.log("*********Homey homeyModel checked : " + model.checked)
+						onClicked: {
+							refreshThrobber.visible = true
+							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
+							if (app.calledFromTile === 99){
+								devicesTileArray.push({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: ""})
+							}else{
+								devicesTileArray[app.calledFromTile] = ({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: ""})
 							}
+							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
+							homeySettingsTileFile2.write(JSON.stringify(devicesTileArray));
+							app.refreshTiles()
+							if (debugOutput) console.log("*********homey saveSettings() file saved")
+							readyText.text = "Opgeslagen"
+							readyText.visible = true
+							throbberTimer.running = true
 						}
 					}
-					
-					StandardCheckBox {
-						id: checkBoxFav
-						height: isNxt? 40:32
-						width: isNxt? 40:32
-						anchors {
-							right: checkBox.left
-							rightMargin: isNxt? 30:24
-						}
-						backgroundColor: colors.graphCheckboxTextBackground
-						squareBackgroundColor:  "#FFFFFF"
-						squareSelectedColor: colors.graphCheckboxSquare
-						squareUnselectedColor: squareSelectedColor
-						fontColorSelected: colors.cbText
-						squareRadius: isNxt? 18:14
-						smallSquareRadius: isNxt? 16:13
-						squareOffset: 0
-						spacing: Math.round(3 * horizontalScaling)
-						leftMargin: Math.round(1 * horizontalScaling)
-						rightMargin: 0
-						checkMarkStartXOffset: isNxt? 3:3
-						checkMarkStartYOffset: isNxt? 6:5
-						fontFamilySelected: qfont.regular.name
-						fontPixelSize: isNxt? 60:48
-						topClickMargin: isNxt? 10:8
-						bottomClickMargin: isNxt? 10:8
-						selected : model.checkedfav
-						onSelectedChanged: { 
-							if (selected) {
-								model.checkedfav = true
-								if (debugOutput) console.log("*********Homey homeyModel checkedfav : " + model.checkedfav)
-							} else {
-								model.checkedfav = false
-								if (debugOutput) console.log("*********Homey homeyModel checkedfav : " + model.checkedfav)
-							}
-						}
-					}
-					
 					
 					Text {
 						id: switchToggle
@@ -326,7 +139,7 @@ Screen {
 						font.family: qfont.bold.name
 						color: "black"
 						anchors {
-							right: checkBoxFav.left
+							right: startButton.left
 							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 20:16
 						}
@@ -340,7 +153,7 @@ Screen {
 						font.family: qfont.bold.name
 						color: "black"
 						anchors {
-							right: checkBoxFav.left
+							right: startButton.left
 							verticalCenter: parent.verticalCenter
 							rightMargin: isNxt? 20:16
 						}
@@ -356,7 +169,7 @@ Screen {
 						color: "black"
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: startButton.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: (model.type== "measure")
@@ -370,7 +183,7 @@ Screen {
 						color: (model.value === "true")? "red":"limegreen"
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: startButton.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: ((model.type === "alarm" || model.type === "heating"))
@@ -384,14 +197,13 @@ Screen {
 						height: isNxt? 30:24
 						anchors {
 							verticalCenter: parent.verticalCenter
-							right: checkBoxFav.left
+							right: startButton.left
 							rightMargin: isNxt? 20:16
 						}
 						visible: ((model.type === "lock"))
 					}
 				}	
         }
-	
 	}
 
 
@@ -406,19 +218,7 @@ Screen {
 		visible: false
 	}
 	
-	Text {
-		id: warningText
-		text: app.warning
-		font.pixelSize:  isNxt? 32:26
-		font.family: qfont.bold.name
-		color: "red"
-		anchors {
-			horizontalCenter: parent.horizontalCenter
-			top: refreshThrobber.bottom
-			topMargin: 10
-		}
-	}
-	
+
 	Text {
 		id: readyText
 		text: "Opgeslagen"
@@ -431,7 +231,6 @@ Screen {
 			topMargin: 10
 		}
 	}
-	
 
 	function listModelSort1() {
         var indexes = new Array(homeyModel.count);
@@ -478,8 +277,6 @@ Screen {
 					var isAvailable = true
 					var capabilityShort = ""
 					var number = 0
-					var checked = false
-					var checkedfav = false
 
 					for (var key in JsonObject) {
 						if (JsonObject.hasOwnProperty(key)) {
@@ -489,18 +286,6 @@ Screen {
 							
 							for (var capa in JsonObject[key].capabilities){
 								capabilityLong = JsonObject[key].capabilities[capa]
-								
-							    if(settingsString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
-									checked = false
-								}else{
-									checked = true
-								}
-								
-								if(settingsFavString.indexOf(String(key + "_" + capabilityLong + "\""))>-1){
-									checkedfav = false
-								}else{
-									checkedfav = true
-								}
 
 								capabilityShort = capabilityLong
 								//if (debugOutput) console.log("*********Homey short   " + capabilityShort);
@@ -523,11 +308,10 @@ Screen {
 								
 								var downState = false
 								var upState = false
-
-
+								
 								if (capabilityLong.indexOf("onoff") > -1 || capabilityLong.indexOf("windowcoverings") > -1){
 									if (capabilityLong === "onoff" && capabilityLong.indexOf("windowcoverings") === -1){
-										homeyModel.append({ checked: checked , checkedfav: checkedfav, number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), unit: units, available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), unit: units, available: isAvailable, up: upState, down: downState})
 									
 									}
 
@@ -551,14 +335,14 @@ Screen {
 												downState = false
 												break
 										}
-										homeyModel.append({checked: checked , checkedfav: checkedfav,number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState})
 									}
 								}
 
                                 if (capabilityLong.indexOf("alarm") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
 										}
 									}
 								}
@@ -566,7 +350,7 @@ Screen {
 								if (capabilityLong.indexOf("hotWaterState") > -1 || capabilityLong.indexOf("burnerState") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({ checked: checked, checkedfav: checkedfav ,number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
 										}
 									}
 								}
@@ -575,7 +359,7 @@ Screen {
 								if (capabilityLong.indexOf("locked") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({ checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+											homeyModel.append({number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
 										}
 									}
 								}
@@ -604,7 +388,7 @@ Screen {
 									capabilityLong.indexOf("programState") > -1   ||
 									capabilityLong.indexOf("meter_power") > -1
 								){
-									homeyModel.append({ checked: checked, checkedfav: checkedfav ,number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable})
+									homeyModel.append({number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
 								}
 							}
 							number++
@@ -624,30 +408,6 @@ Screen {
         xhr.send()
     }
 	
-	function saveSettings() {
-		if (debugOutput) console.log("*********homey saveDeviceSettings()")
-		refreshThrobber.visible = true
-		devicesArray = []
-		devicesFavArray = []
-		for (var i = 0; i < homeyModel.count; i++) {
-			var item = homeyModel.get(i);
-			if (item.checked === false){
-				devicesArray.push(item.id + "_" + item.capa)
-			}
-			if (item.checkedfav === false){
-				devicesFavArray.push(item.id + "_" + item.capa)
-			}
-		}
-
-		homeySettingsFile.write(JSON.stringify(devicesArray));
-		homeySettingsFavFile.write(JSON.stringify(devicesFavArray));
-		if (debugOutput) console.log("*********homey saveSettings() file saved")
-		readyText.text = "Opgeslagen"
-		readyText.visible = true
-		throbberTimer.running = true
-	}
-	
-	
 	Timer{
 		id: throbberTimer
 		interval: 2000
@@ -655,10 +415,11 @@ Screen {
 		running: false
 		repeat: false
 		onTriggered:
-			{
-				refreshThrobber.visible = false
-				readyText.visible = false
-			}
+		{
+			refreshThrobber.visible = false
+			readyText.visible = false
+			hide()
+		}
 	}
 	
 	Timer{
@@ -668,10 +429,9 @@ Screen {
 		running: false
 		repeat: false
 		onTriggered:
-			{
-				starting = false
-				refreshThrobber.visible = false
-			}
+		{
+			starting = false
+			refreshThrobber.visible = false
+		}
 	}
-
 }
