@@ -3,11 +3,11 @@ import qb.components 1.0
 
 
 Tile {
-	id: homeyTile1
+	id: homeyTileXXXXXXX
 	
 	property bool debugOutput : app.debugOutput
 
-	property int tileNR: 1
+	property int tileNR: XXXXXXX
 	
     property string available : app.tilesJSON[tileNR].available
 	property string capaShort : app.tilesJSON[tileNR].capaShort
@@ -40,11 +40,11 @@ Tile {
 	
 	onVisibleChanged: {
         if (visible) {
-			app.tile1visible = true
-			if (debugOutput) console.log("*********Homey app.tile1visible = true")
+			app.tileXXXXXXXvisible = true
+			if (debugOutput) console.log("*********Homey app.tileXXXXXXXvisible = true")
         }else{
-			app.tile1visible = false
-			if (debugOutput) console.log("*********Homey app.tile1visible = false")
+			app.tileXXXXXXXvisible = false
+			if (debugOutput) console.log("*********Homey app.tileXXXXXXXvisible = false")
 		}
     }
 	
@@ -272,4 +272,3 @@ Tile {
 		visible: (available && devflow == "flow")
 	}
 }
-

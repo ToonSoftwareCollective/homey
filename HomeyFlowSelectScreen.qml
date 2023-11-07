@@ -229,7 +229,7 @@ Screen {
 		text: app.warning
 		font.pixelSize:  isNxt? 32:26
 		font.family: qfont.bold.name
-		color: "black"
+		color: "red"
 		anchors {
 			horizontalCenter: parent.horizontalCenter
 			top: refreshThrobber.bottom

@@ -15,54 +15,74 @@ App {
 	
 	property bool 	debugOutput: false
 	property bool 	testurl: false
-	property int 	maxtiles : 4
 	
 	property url 	tileUrl : "HomeyTile.qml"
+	property url 	tileUrl0 : "HomeyNr0Tile.qml"
 	property url 	tileUrl1 : "HomeyNr1Tile.qml"
-
 	property url 	tileUrl2 : "HomeyNr2Tile.qml"
 	property url 	tileUrl3 : "HomeyNr3Tile.qml"
 	property url 	tileUrl4 : "HomeyNr4Tile.qml"
+	property url 	tileUrl5 : "HomeyNr5Tile.qml"
+	property url 	tileUrl6 : "HomeyNr6Tile.qml"
+	property url 	tileUrl7 : "HomeyNr7Tile.qml"
+	property url 	tileUrl8 : "HomeyNr8Tile.qml"
+	property url 	tileUrl9 : "HomeyNr9Tile.qml"
+	
+	
+	property int 	calledFromTile : 0
+	property bool 	tileSettingsCopied : false
+	
 
-	property HomeyConfigScreen homeyConfigScreen
-	property url 	homeyConfigScreenUrl : "HomeyConfigScreen.qml"
-	property url    trayUrl : "MediaTray.qml";
-	property SystrayIcon mediaTray2
-	property url 	homeyScreenUrl : "HomeyScreen.qml"
-	property HomeyScreen homeyScreen	
-	property url 	homeyFlowScreenUrl : "HomeyFlowScreen.qml"
-	property HomeyFlowScreen homeyFlowScreen	
-	property url 	homeyDevicesSelectScreenUrl : "HomeyDevicesSelectScreen.qml"
-	property HomeyDevicesSelectScreen homeyDevicesSelectScreen
-	property url 	homeyFavoritesScreenUrl : "HomeyFavoritesScreen.qml"
-	property HomeyFavoritesScreen homeyFavoritesScreen
-	property url 	homeyFlowSelectScreenUrl : "HomeyFlowSelectScreen.qml"
-	property HomeyFlowSelectScreen homeyFlowSelectScreen
+	property HomeyConfigScreen 					homeyConfigScreen
+	property url 								homeyConfigScreenUrl : "HomeyConfigScreen.qml"
+	property url    							trayUrl : "MediaTray.qml";
+	property SystrayIcon 						mediaTray2
+	property url 								homeyScreenUrl : "HomeyScreen.qml"
+	property HomeyScreen 						homeyScreen	
+	property url 								homeyFlowScreenUrl : "HomeyFlowScreen.qml"
+	property HomeyFlowScreen 					homeyFlowScreen	
+	property url 								homeyDevicesSelectScreenUrl : "HomeyDevicesSelectScreen.qml"
+	property HomeyDevicesSelectScreen 			homeyDevicesSelectScreen
+	property url 								homeyFavoritesScreenUrl : "HomeyFavoritesScreen.qml"
+	property HomeyFavoritesScreen 				homeyFavoritesScreen
+	property url 								homeyFlowSelectScreenUrl : "HomeyFlowSelectScreen.qml"
+	property HomeyFlowSelectScreen 				homeyFlowSelectScreen
 
-	property HomeyConfigScreen2 homeyConfigScreen2
-	property url 	homeyConfigScreen2Url : "HomeyConfigScreen2.qml"
+	property HomeyConfigScreen2 				homeyConfigScreen2
+	property url 								homeyConfigScreen2Url : "HomeyConfigScreen2.qml"
+	
+	property HomeyTilesSelectScreen 			homeyTilesSelectScreen
+	property url 								homeyTilesSelectScreenUrl : "HomeyTilesSelectScreen.qml"
+	
+	property HomeyTileDeviceSelectScreen 		homeyTileDeviceSelectScreen
+	property url 								homeyTileDeviceSelectScreenUrl : "HomeyTileDeviceSelectScreen.qml"
+	
+	property HomeyTileFlowSelectScreen 			homeyTileFlowSelectScreen
+	property url 								homeyTileFlowSelectScreenUrl : "HomeyTileFlowSelectScreen.qml"
 
-	property url 	thumbnailIcon: "qrc:/tsc/LightBulbOn.png"
-	property bool 	tokenOK: false
-		
-	property string email : ''
-    property string password : ''
-    property string client_id : '5a8d4ca6eb9f7a2c9d6ccf6d'
-    property string client_secret  :  'e3ace394af9f615857ceaa61b053f966ddcfb12a'
-    property string redirect_url  :  'http://localhost'
-    property string cloudid  : ''
-    property string token  : ''
-	property string rftoken : ''
-	property string actoken : ''
-	property string warning: ''
-	property bool   needReboot: false
-	property string tileString: ''
-	property variant tilesJSON : []
 
-	property bool tile1visible: false
-	property bool tile2visible: false
-	property bool tile3visible: false
-	property bool tile4visible: false
+	property url 								thumbnailIcon: "qrc:/tsc/LightBulbOn.png"
+	
+	property bool 		tokenOK: false
+	property string 	email : ''
+    property string 	password : ''
+    property string 	client_id : '5a8d4ca6eb9f7a2c9d6ccf6d'
+    property string 	client_secret  :  'e3ace394af9f615857ceaa61b053f966ddcfb12a'
+    property string 	redirect_url  :  'http://localhost'
+    property string 	cloudid  : ''
+    property string 	token  : ''
+	property string 	rftoken : ''
+	property string 	actoken : ''
+	property string 	warning: ''
+	property bool   	needReboot: false
+	property string 	tileString: ''
+	property variant 	tilesJSON : []
+
+	property bool 		tile0visible: false
+	property bool 		tile1visible: false
+	property bool 		tile2visible: false
+	property bool 		tile3visible: false
+	property bool 		tile4visible: false
 	
 	signal clearModels()
 	signal homeyUpdated()
@@ -140,6 +160,17 @@ App {
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
 //TILE//
+registry.registerWidget("tile", tileUrl0, this, null, {thumbLabel: qsTr("Homey_0"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl2, this, null, {thumbLabel: qsTr("Homey_2"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl3, this, null, {thumbLabel: qsTr("Homey_3"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl4, this, null, {thumbLabel: qsTr("Homey_4"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl5, this, null, {thumbLabel: qsTr("Homey_5"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl6, this, null, {thumbLabel: qsTr("Homey_6"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl7, this, null, {thumbLabel: qsTr("Homey_7"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl8, this, null, {thumbLabel: qsTr("Homey_8"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+registry.registerWidget("tile", tileUrl9, this, null, {thumbLabel: qsTr("Homey_9"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+
 //TILE END//		
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
 		registry.registerWidget("screen", homeyConfigScreen2Url, this, "homeyConfigScreen2");
@@ -147,6 +178,9 @@ App {
 		registry.registerWidget("screen", homeyDevicesSelectScreenUrl, this, "homeyDevicesSelectScreen");
 		registry.registerWidget("screen", homeyFlowSelectScreenUrl, this, "homeyFlowSelectScreen");
 		registry.registerWidget("screen", homeyFavoritesScreenUrl, this, "homeyFavoritesScreen");
+		registry.registerWidget("screen", homeyTilesSelectScreenUrl, this, "homeyTilesSelectScreen");
+		registry.registerWidget("screen", homeyTileDeviceSelectScreenUrl, this, "homeyTileDeviceSelectScreen");
+		registry.registerWidget("screen", homeyTileFlowSelectScreenUrl, this, "homeyTileFlowSelectScreen");
 	}
 	
 	Component.onCompleted: {
@@ -278,6 +312,33 @@ App {
 										//if (debugOutput) console.log("*********Homey tilesJSON[" + tileNR + "].keycapa" + tilesJSON[tileNR].keycapa)
 										if(tilesJSON[tileNR].keycapa === String(key + "_" + capabilityLong)){
 											//if (debugOutput) console.log("*********Homey tile gevonden nummer " + tileNR + " : " + String(key + "_" + capabilityLong))
+											
+											if (capabilityLong.indexOf("windowcoverings_state") > -1){
+												var downState = false
+											    var upState = false
+												var valState = JsonObject[key].capabilitiesObj[capabilityLong].value
+												switch (valState) {
+													case "up":
+														upState = true
+														downState = false
+														break
+													case "idle":
+														upState = false
+														downState = false
+														break
+													case "down":
+														upState = false
+														downState = true
+														break
+													default:
+														upState = false
+														downState = false
+														break
+												}
+												tilesJSON[tileNR].up = upState
+												tilesJSON[tileNR].down = downState
+											}
+											
 											tilesJSON[tileNR].value = String(JsonObject[key].capabilitiesObj[capabilityLong].value)
 											tilesJSON[tileNR].available = JsonObject[key].available
 											homeyUpdated()
@@ -317,7 +378,7 @@ App {
                 if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
                         if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
                         if (debugOutput) console.log("*********Homey " + xhr.responseText)
-						updateDevices()
+						getTiles()
                 } else {
                     if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
                     if (debugOutput) console.log("*********Homey " + xhr.responseText)
@@ -325,6 +386,30 @@ App {
             }
         }
         xhr.send(JSON.stringify({ "value": valSet }))
+    }
+	
+	function tiggerflow(flowid){
+        if (debugOutput) console.log("*********Homey Start getDevices()")
+		var jwt = token
+		if (debugOutput) console.log("*********Homey flowId : " + flowid)
+        var xhr = new XMLHttpRequest()
+        var url = 'https://' + cloudid + '.connect.athom.com/api/' + 'manager/flow/flow/' + flowid + '/trigger'
+        if (debugOutput) console.log("*********Homey url : " + url)
+		xhr.open("POST", url, true);
+        xhr.setRequestHeader( 'authorization', 'Bearer ' + jwt);
+        xhr.setRequestHeader( 'content-type', 'application/json');
+        xhr.onreadystatechange = function() { // Call a function when the state changes.
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
+					if (debugOutput) console.log("xhr.status: " + xhr.status)
+					if (debugOutput) console.log(xhr.responseText)
+                } else {
+                    if (debugOutput) console.log("*********Homey xhr.status: " + xhr.status)
+                    if (debugOutput) console.log("*********Homey " + xhr.responseText)
+                }
+            }
+        }
+        xhr.send()
     }
 
 	Timer {
@@ -344,7 +429,7 @@ App {
 		id: getDevicesTimer
 		interval: 10000
 		triggeredOnStart: true
-		running: (tile1visible || tile2visible || tile3visible || tile4visible)
+		running: (tile0visible || tile1visible || tile2visible || tile3visible || tile4visible || tile5visible || tile6visible || tile7visible || tile8visible || tile9visible)
 		repeat: true
 		onTriggered: 
 			if(tokenOK){
@@ -353,5 +438,24 @@ App {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

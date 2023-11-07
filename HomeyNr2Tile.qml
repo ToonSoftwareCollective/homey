@@ -6,7 +6,8 @@ Tile {
 	id: homeyTile2
 	
 	property bool debugOutput : app.debugOutput
-	property int tileNR: 1
+
+	property int tileNR: 2
 	
     property string available : app.tilesJSON[tileNR].available
 	property string capaShort : app.tilesJSON[tileNR].capaShort
@@ -18,17 +19,25 @@ Tile {
 	property string unit : app.tilesJSON[tileNR].unit
 	property string value : app.tilesJSON[tileNR].value
     property string zone : app.tilesJSON[tileNR].zone
+	property string devflow : app.tilesJSON[tileNR].devflow
+    property string flowname : app.tilesJSON[tileNR].flowname
 	
-	onClicked: {
-		if (app.homeyFavoritesScreen){	
+	property bool dimState: screenStateController.dimmedColors
+
+	
+	MouseArea {
+		anchors.fill: parent
+		onClicked: {
+			if (app.homeyFavoritesScreen){	
 			app.homeyFavoritesScreen.show();
+		}
 		}
 	}
 
 	Component.onCompleted: {
 		app.homeyUpdated.connect(updateTile);
 	}
-
+	
 	onVisibleChanged: {
         if (visible) {
 			app.tile2visible = true
@@ -42,12 +51,11 @@ Tile {
 	function stringToBoolean(inputString) {
         return (inputString === "true") ? true : false;
     }
-
-
 	
+
 	function updateTile() {
 		if (debugOutput) console.log("*********Homey Start updateTile()")
-		if( app.tilesJSON){
+		try {
 			available = app.tilesJSON[tileNR].available
 			capaShort = app.tilesJSON[tileNR].capaShort
 			devicename = app.tilesJSON[tileNR].devicename
@@ -58,6 +66,9 @@ Tile {
 			unit = app.tilesJSON[tileNR].unit
 			value = app.tilesJSON[tileNR].value
 			zone = app.tilesJSON[tileNR].zone
+			flowname = app.tilesJSON[tileNR].flowname
+			devflow = app.tilesJSON[tileNR].devflow
+		} catch(e) {
 		}
 	}
 
@@ -82,11 +93,25 @@ Tile {
 		text: (zone + " " + devicename).substring(0, 41)
 		font.pixelSize:  isNxt? 22:17
 		font.family: qfont.bold.name
-		color: "black"
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
 		anchors {
 			top: titleText.bottom
 			horizontalCenter: parent.horizontalCenter
 		}
+		visible: (devflow == "device")
+	}
+	
+	Text {
+		id: flowName
+		text: (flowname).substring(0, 41)
+		font.pixelSize:  isNxt? 22:17
+		font.family: qfont.bold.name
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
+		anchors {
+			top: titleText.bottom
+			horizontalCenter: parent.horizontalCenter
+		}
+		visible: (devflow == "flow")
 	}
 	
 	Text {
@@ -94,7 +119,7 @@ Tile {
 		text: (type !== "measure")? "":(capaShort).substring(0, 41)
 		font.pixelSize:  isNxt? 18:14
 		font.family: qfont.bold.name
-		color: "black"
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
 		anchors {
 			top: deviceName.bottom
 			horizontalCenter: parent.horizontalCenter
@@ -106,12 +131,12 @@ Tile {
 		text: available? value + " " + unit: ""
 		font.pixelSize:  isNxt? 40:32
 		font.family: qfont.bold.name
-		color: "black"
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
 		anchors {
 			top: deviceName2.bottom
 			horizontalCenter: parent.horizontalCenter
 		}
-		visible: (type === "measure")
+		visible: (type === "measure" && devflow == "device")
 	}
 	
 	Rectangle {
@@ -124,12 +149,12 @@ Tile {
 			top: deviceName2.bottom
 			horizontalCenter: parent.horizontalCenter
 		}
-		visible: ((type === "alarm" || type === "heating"))
+		visible: ((type === "alarm" || type === "heating") && devflow == "device")
 	}
 	
 	Image {
 		id: lockImage
-		source: (value === "true")? "drawables/lock.png": "drawables/unlock.png"
+		source:   dimState? (value === "true")? "drawables/lock_60_white.png": "drawables/unlock_60_white.png" : (value === "true")? "drawables/lock_60_black.png": "drawables/unlock_60_black.png"
 		fillMode: Image.PreserveAspectFit
 		width: isNxt? 50:40
 		height: isNxt? 50:40
@@ -137,12 +162,36 @@ Tile {
 			top: deviceName2.bottom
 			horizontalCenter: parent.horizontalCenter
 		}
-		visible: ((type === "lock"))
+		visible: ((type === "lock") && devflow == "device")
+	}
+	
+	Rectangle {
+		id: backRectangle
+		radius: 10
+		width: isNxt? 140:112
+		height: isNxt? 100:80
+		color: "transparent"
+		anchors {
+			top: deviceName2.bottom
+			horizontalCenter: parent.horizontalCenter
+			topMargin: -25
+		}
+		MouseArea {
+			anchors.fill: parent
+			onClicked: {
+			}
+		}
+		visible: switchToggle.visible
 	}
 	
 	OnOffToggle {
 		id: switchToggle
 		height: isNxt? 50:40
+		
+		sliderWidth: 100
+		sliderHeight: 50
+		knobWidth: sliderHeight*0.8
+	
 		anchors {
 			top: deviceName2.bottom
 			horizontalCenter: parent.horizontalCenter
@@ -155,7 +204,7 @@ Tile {
 				app.setState("onoff",key, false)
 			}
 		}
-		visible: ((type=="onoff"))
+		visible: ((type=="onoff") && devflow == "device")
 	}
 	
 	IconButton {
@@ -171,7 +220,7 @@ Tile {
 		onClicked: {
 			app.setState("windowcoverings_state",key, "idle")
 		}
-		visible: ((type=="window"))
+		visible: ((type=="window") && devflow == "device")
 	}
 	
 	IconButton {
@@ -188,7 +237,7 @@ Tile {
 		onClicked: {
 			app.setState("windowcoverings_state",key, "up")
 		}
-		visible: ((type=="window"))
+		visible: ((type=="window") && devflow == "device")
 	}
 
 	IconButton {
@@ -205,6 +254,22 @@ Tile {
 		onClicked: {
 			app.setState("windowcoverings_state",key, "down")
 		}
-		visible: ((type=="window"))
+		visible: ((type=="window") && devflow == "device")
+	}
+	
+
+	StandardButton {
+		id: startButton
+		text: "Start"
+		height: isNxt? 80:64
+		anchors {
+			top: deviceName2.bottom
+			horizontalCenter: parent.horizontalCenter
+		}
+		onClicked: {
+			app.tiggerflow(key)
+		}
+		visible: (available && devflow == "flow")
 	}
 }
+
