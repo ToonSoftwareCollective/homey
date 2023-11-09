@@ -16,6 +16,7 @@ App {
 	property bool 	debugOutput: false
 	property bool 	testurl: false
 	
+
 	property url 	tileUrl : "HomeyTile.qml"
 	property url 	tileUrl0 : "HomeyNr0Tile.qml"
 	property url 	tileUrl1 : "HomeyNr1Tile.qml"
