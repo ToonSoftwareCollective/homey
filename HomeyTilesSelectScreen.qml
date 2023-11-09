@@ -73,6 +73,7 @@ Screen {
 
 	onShown: {
 	    addCustomTopRightButton("Opslaan en herstarten")
+		readyTextRectangle.visible = false
 		refreshThrobber.visible = true
 		homeyModel.clear()
 		if (!app.tileSettingsCopied){
@@ -130,7 +131,7 @@ Screen {
 						}
 						onClicked: {
 							app.calledFromTile = model.id
-							devicesTileArray[index] = ({devflow: "leeg" , id: app.calledFromTile , keycapa: "", key: "" ,zone: "", type:"", capa:"", capaShort: "", devicename: "Niet in gebruik", value: "", available:false , up: false, down: false, unit: "", flowname: ""})
+							devicesTileArray[index] = ({devflow: "leeg" , id: app.calledFromTile , keycapa: "", key: "" ,zone: "", type:"", capa:"", capaShort: "", devicename: "Niet in gebruik", value: "", available:false , up: false, down: false, unit: "", flowname: "", mbDown: 0 ,mbTop:0})
 							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 							homeySettingsTileFile2.write(JSON.stringify(devicesTileArray));
 							app.refreshTiles()
@@ -187,7 +188,7 @@ Screen {
 
 					Text {
 						id: flowName
-						text: (model.flowname).substring(0, 50)
+						text: (model.devflow === "flow")? (model.flowname).substring(0, 50): ""
 						font.pixelSize:  isNxt? 18:14
 						font.family: qfont.bold.name
 						color: "black"
@@ -303,18 +304,35 @@ Screen {
 		visible: false
 	}
 	
-	Text {
-		id: readyText
-		text: app.warning
-		font.pixelSize:  isNxt? 32:26
-		font.family: qfont.bold.name
-		color: "red"
+	
+
+	Rectangle {
+		id: readyTextRectangle
+		width: readyText.width + 20
+		height: isNxt? 35:28
+		color: "white"
 		anchors {
-			horizontalCenter: parent.horizontalCenter
 			top: refreshThrobber.bottom
-			topMargin: 10
+			topMargin: isNxt? 20:16
+			horizontalCenter: parent.horizontalCenter
+		}
+		Text {
+			id: readyText
+			text: "opgeslagen"
+			font.pixelSize:  isNxt? 32:26
+			font.family: qfont.bold.name
+			color: "black"
+			anchors {
+			   centerIn: parent
+			   verticalCenter: parent.verticalCenter
+			}
 		}
 	}
+	
+	
+	
+	
+	
 
 	Timer{
 		id: throbberTimer
@@ -391,8 +409,8 @@ Screen {
 		appFile.write( newappfileString)
 		if (debugOutput) console.log("*********toonTemp new WidgetSettings saved ")
 	
-		readyText.text = "Nieuwe config opgeslagen, herstart nodig" + "..." 
-		readyText.visible = true
+		readyText.text = "Opgeslagen, herstart nodig" + "..." 
+		readyTextRectangle.visible = true
 		rebootTimer.running = true
 	}
 }

@@ -31,7 +31,7 @@ Screen {
 	
 	
 	onShown: {
-		readyText.visible = false
+		readyTextRectangle.visible = false
 		readSettings()
 		getDevices()
 	}
@@ -118,16 +118,16 @@ Screen {
 							refreshThrobber.visible = true
 							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 							if (app.calledFromTile === 99){
-								devicesTileArray.push({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: ""})
+								devicesTileArray.push({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: "", mbTop: model.mbTop , mbDown: model.mbDown})
 							}else{
-								devicesTileArray[app.calledFromTile] = ({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: ""})
+								devicesTileArray[app.calledFromTile] = ({devflow: "device" , id: app.calledFromTile , keycapa: String(model.id + "_" + model.capa), key: model.id ,zone: model.zone, type:model.type, capa:model.capa, capaShort: model.capaShort, devicename: model.devicename, value: model.value, available:model.available , up: model.up, down: model.down, unit: model.unit, flowname: "", mbTop: model.mbTop , mbDown: model.mbDown})
 							}
 							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 							homeySettingsTileFile2.write(JSON.stringify(devicesTileArray));
 							app.refreshTiles()
 							if (debugOutput) console.log("*********homey saveSettings() file saved")
 							readyText.text = "Opgeslagen"
-							readyText.visible = true
+							readyTextRectangle.visible = true
 							throbberTimer.running = true
 						}
 					}
@@ -158,6 +158,20 @@ Screen {
 							rightMargin: isNxt? 20:16
 						}
 						visible: (model.available & (model.type2=="3 button"))
+					}
+					
+					Text {
+						id: mbButton
+						text: "motionblind"
+						font.pixelSize:  isNxt? 18:14
+						font.family: qfont.bold.name
+						color: "black"
+						anchors {
+							right: startButton.left
+							verticalCenter: parent.verticalCenter
+							rightMargin: isNxt? 20:16
+						}
+						visible: (model.available & (model.type2=="motionblind"))
 					}
 				
 					
@@ -219,18 +233,29 @@ Screen {
 	}
 	
 
-	Text {
-		id: readyText
-		text: "Opgeslagen"
-		font.pixelSize:  isNxt? 32:26
-		font.family: qfont.bold.name
-		color: "red"
+	Rectangle {
+		id: readyTextRectangle
+		width: readyText.width + 20
+		height: isNxt? 35:28
+		color: "white"
 		anchors {
-			horizontalCenter: parent.horizontalCenter
 			top: refreshThrobber.bottom
-			topMargin: 10
+			topMargin: isNxt? 20:16
+			horizontalCenter: parent.horizontalCenter
+		}
+		Text {
+			id: readyText
+			text: "opgeslagen"
+			font.pixelSize:  isNxt? 32:26
+			font.family: qfont.bold.name
+			color: "black"
+			anchors {
+			   centerIn: parent
+			   verticalCenter: parent.verticalCenter
+			}
 		}
 	}
+	
 
 	function listModelSort1() {
         var indexes = new Array(homeyModel.count);
@@ -311,11 +336,11 @@ Screen {
 								
 								if (capabilityLong.indexOf("onoff") > -1 || capabilityLong.indexOf("windowcoverings") > -1){
 									if (capabilityLong === "onoff" && capabilityLong.indexOf("windowcoverings") === -1){
-										homeyModel.append({number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), unit: units, available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName , type: "onoff" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "toggle", value:String(String(JsonObject[key].capabilitiesObj[capabilityLong].value)), unit: units, available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 									
 									}
 
-									if (capabilityLong.indexOf("windowcoverings_state") > -1){
+									if (capabilityLong.indexOf("windowcoverings_state") > -1 && JsonObject[key].driverId.indexOf("motionblinds") <0){
 										var valState = JsonObject[key].capabilitiesObj["windowcoverings_state"].value
 										switch (valState) {
 											case "up":
@@ -335,14 +360,40 @@ Screen {
 												downState = false
 												break
 										}
-										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState})
+										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 									}
+
+									if (JsonObject[key].driverId.indexOf("motionblinds") > -1 && capabilityLong.indexOf("windowcoverings_state") > -1){
+										var valStateMain = JsonObject[key].capabilitiesObj[capabilityLong].value
+										switch (valStateMain) {
+											case "up":
+												upState = true
+												downState = false
+												break
+											case "idle":
+												upState = false
+												downState = false
+												break
+											case "down":
+												upState = false
+												downState = true
+												break
+											default:
+												upState = false
+												downState = false
+												break
+										}
+										var mbTop = JsonObject[key].capabilitiesObj["windowcoverings_set.top"].value
+										var mbDown = JsonObject[key].capabilitiesObj["windowcoverings_set.bottom"].value
+										homeyModel.append({number: number,id: key , zone:zoneName, type: "motionblind" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "motionblind", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState, mbDown: mbDown ,mbTop:mbTop})
+									}
+
 								}
 
                                 if (capabilityLong.indexOf("alarm") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
+											homeyModel.append({number: number,id: key , zone:zoneName, type: "alarm" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 										}
 									}
 								}
@@ -350,7 +401,7 @@ Screen {
 								if (capabilityLong.indexOf("hotWaterState") > -1 || capabilityLong.indexOf("burnerState") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
+											homeyModel.append({number: number,id: key , zone:zoneName, type: "heating" , capaShort: capabilityShort, capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 										}
 									}
 								}
@@ -359,7 +410,7 @@ Screen {
 								if (capabilityLong.indexOf("locked") > -1){
 									if (JsonObject[key].capabilitiesObj[capabilityLong] !== undefined){
 										if (JsonObject[key].capabilitiesObj[capabilityLong].value !== null){
-											homeyModel.append({number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
+											homeyModel.append({number: number, id: key , zone:zoneName, type: "lock" , capaShort: capabilityShort , capa: capabilityLong, devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 										}
 									}
 								}
@@ -388,7 +439,7 @@ Screen {
 									capabilityLong.indexOf("programState") > -1   ||
 									capabilityLong.indexOf("meter_power") > -1
 								){
-									homeyModel.append({number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState})
+									homeyModel.append({number: number, id: key , zone:zoneName ,  type: "measure", capaShort: capabilityShort , capa: capabilityLong,  devicename: JsonObject[key].name, value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units , available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 								}
 							}
 							number++

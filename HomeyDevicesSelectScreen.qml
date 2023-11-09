@@ -56,7 +56,7 @@ Screen {
 	
 	
 	onShown: {
-		readyText.visible = false
+		readyTextRectangle.visible = false
 		readSettings()
 		addCustomTopRightButton("Opslaan");
 		getDevices()
@@ -69,7 +69,7 @@ Screen {
 
 	Text {
 		id: screenTip
-		text: "Kies tegels (4), favorieten en welke apparaten zichtbaar moeten zijn"
+		text: "Kies favorieten en welke apparaten zichtbaar moeten zijn"
 		font.pixelSize:  isNxt? 20:16
 		font.family: qfont.bold.name
 		color: "black"
@@ -419,16 +419,26 @@ Screen {
 		}
 	}
 	
-	Text {
-		id: readyText
-		text: "Opgeslagen"
-		font.pixelSize:  isNxt? 32:26
-		font.family: qfont.bold.name
-		color: "red"
+	Rectangle {
+		id: readyTextRectangle
+		width: readyText.width + 20
+		height: isNxt? 35:28
+		color: "white"
 		anchors {
-			horizontalCenter: parent.horizontalCenter
 			top: refreshThrobber.bottom
-			topMargin: 10
+			topMargin: isNxt? 20:16
+			horizontalCenter: parent.horizontalCenter
+		}
+		Text {
+			id: readyText
+			text: app.warning
+			font.pixelSize:  isNxt? 32:26
+			font.family: qfont.bold.name
+			color: "black"
+			anchors {
+				centerIn: parent
+			   verticalCenter: parent.verticalCenter
+			}
 		}
 	}
 	
@@ -643,7 +653,7 @@ Screen {
 		homeySettingsFavFile.write(JSON.stringify(devicesFavArray));
 		if (debugOutput) console.log("*********homey saveSettings() file saved")
 		readyText.text = "Opgeslagen"
-		readyText.visible = true
+		readyTextRectangle.visible = true
 		throbberTimer.running = true
 	}
 	
@@ -657,7 +667,7 @@ Screen {
 		onTriggered:
 			{
 				refreshThrobber.visible = false
-				readyText.visible = false
+				readyTextRectangle.visible = false
 			}
 	}
 	
