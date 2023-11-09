@@ -334,7 +334,7 @@ Tile {
 		}
 		iconSource: "qrc:/tsc/up.png"
 		onClicked: {
-			app.setState("windowcoverings_set.bottom",key, (mbTop + 0.10))
+			app.setState("windowcoverings_set.top",key, (mbTop + 0.10))
 		}
 		visible: ((type=="motionblind") && devflow == "device")
 	}
@@ -352,7 +352,7 @@ Tile {
 		}
 		iconSource: "qrc:/tsc/down.png"
 		onClicked: {
-			app.setState("windowcoverings_set.bottom",key, (mbTop - 0.10))
+			app.setState("windowcoverings_set.top",key, (mbTop - 0.10))
 		}
 		visible: ((type=="motionblind") && devflow == "device")
 	}
