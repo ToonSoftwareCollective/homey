@@ -14,7 +14,7 @@ App {
 	id: root
 	
 	property bool 	debugOutput: false
-	property bool 	testurl: true
+	property bool 	testurl: false
 	
 	property url 	tileUrl : "HomeyTile.qml"
 	property url 	tileUrl0 : "HomeyNr0Tile.qml"
