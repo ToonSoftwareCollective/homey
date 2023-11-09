@@ -30,7 +30,7 @@ Screen {
     }
 	
 	onShown: {
-		readyText.visible = false
+		readyTextRectangle.visible = false
 		readSettings()
 		getflows()
 	}
@@ -117,16 +117,16 @@ Screen {
 							refreshThrobber.visible = true
 							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 							if (app.calledFromTile === 99){
-								devicesTileArray.push({devflow: "flow" , id: app.calledFromTile , keycapa: "", key: model.id ,zone: model.zone, type:"", capa:"", capaShort: "", devicename: "", value: "", available:model.available , up: false, down: false, unit: "", flowname: model.flowname})
+								devicesTileArray.push({devflow: "flow" , id: app.calledFromTile , keycapa: "", key: model.id ,zone: model.zone, type:"", capa:"", capaShort: "", devicename: "", value: "", available:model.available , up: false, down: false, unit: "", flowname: model.flowname, mbDown: 0 ,mbTop:0})
 							}else{
-								devicesTileArray[app.calledFromTile] = ({devflow: "flow" , id: app.calledFromTile , keycapa: "", key: model.id ,zone: "", type:"", capa:"", capaShort: "", devicename: "", value: "", available:model.available , up: false, down: false, unit: "", flowname: model.flowname})
+								devicesTileArray[app.calledFromTile] = ({devflow: "flow" , id: app.calledFromTile , keycapa: "", key: model.id ,zone: "", type:"", capa:"", capaShort: "", devicename: "", value: "", available:model.available , up: false, down: false, unit: "", flowname: model.flowname, mbDown: 0 ,mbTop:0})
 							}
 							if (debugOutput) console.log("*********homey JSON.stringify(devicesTileArray): " + JSON.stringify(devicesTileArray))
 							homeySettingsTileFile2.write(JSON.stringify(devicesTileArray));
 							app.refreshTiles()
 							if (debugOutput) console.log("*********homey saveSettings() file saved")
 							readyText.text = "Opgeslagen"
-							readyText.visible = true
+							readyTextRectangle.visible = true
 							throbberTimer.running = true
 						}
 					}
@@ -147,16 +147,27 @@ Screen {
 	}
 	
 
-	Text {
-		id: readyText
-		text: "Opgeslagen"
-		font.pixelSize:  isNxt? 32:26
-		font.family: qfont.bold.name
-		color: "red"
+
+	Rectangle {
+		id: readyTextRectangle
+		width: readyText.width + 20
+		height: isNxt? 35:28
+		color: "white"
 		anchors {
-			horizontalCenter: parent.horizontalCenter
 			top: refreshThrobber.bottom
-			topMargin: 10
+			topMargin: isNxt? 20:16
+			horizontalCenter: parent.horizontalCenter
+		}
+		Text {
+			id: readyText
+			text: "opgeslagen"
+			font.pixelSize:  isNxt? 32:26
+			font.family: qfont.bold.name
+			color: "black"
+			anchors {
+			   centerIn: parent
+			   verticalCenter: parent.verticalCenter
+			}
 		}
 	}
 

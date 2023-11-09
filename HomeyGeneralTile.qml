@@ -12,8 +12,8 @@ Tile {
     property string available : app.tilesJSON[tileNR].available
 	property string capaShort : app.tilesJSON[tileNR].capaShort
 	property string devicename : app.tilesJSON[tileNR].devicename
-	property string down : app.tilesJSON[tileNR].down
-	property string up : app.tilesJSON[tileNR].up
+	property bool 	down : app.tilesJSON[tileNR].down
+	property bool 	up : app.tilesJSON[tileNR].up
 	property string key : app.tilesJSON[tileNR].key
 	property string type : app.tilesJSON[tileNR].type
 	property string unit : app.tilesJSON[tileNR].unit
@@ -21,18 +21,18 @@ Tile {
     property string zone : app.tilesJSON[tileNR].zone
 	property string devflow : app.tilesJSON[tileNR].devflow
     property string flowname : app.tilesJSON[tileNR].flowname
+	property real mbTop : app.tilesJSON[tileNR].mbTop
+    property real mbBottom : app.tilesJSON[tileNR].mbDown
 	
 	property bool dimState: screenStateController.dimmedColors
 
-	
-	MouseArea {
-		anchors.fill: parent
-		onClicked: {
-			if (app.homeyFavoritesScreen){	
+
+	onClicked: {
+		if (app.homeyFavoritesScreen){	
 			app.homeyFavoritesScreen.show();
 		}
-		}
 	}
+
 
 	Component.onCompleted: {
 		app.homeyUpdated.connect(updateTile);
@@ -68,6 +68,8 @@ Tile {
 			zone = app.tilesJSON[tileNR].zone
 			flowname = app.tilesJSON[tileNR].flowname
 			devflow = app.tilesJSON[tileNR].devflow
+			mbTop = app.tilesJSON[tileNR].mbTop
+			mbBottom = app.tilesJSON[tileNR].mbDown
 		} catch(e) {
 		}
 	}
@@ -116,7 +118,7 @@ Tile {
 	
 	Text {
 		id: deviceName2
-		text: (type !== "measure")? "":(capaShort).substring(0, 41)
+		text: (type !== "measure")? "":(capaShort.replace(/measure_|meter_/g, "")).substring(0, 41)
 		font.pixelSize:  isNxt? 18:14
 		font.family: qfont.bold.name
 		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
@@ -125,6 +127,8 @@ Tile {
 			horizontalCenter: parent.horizontalCenter
 		}
 	}
+
+/////////MEASURE AND METER/////////////////////////////////////////	
 	
 	Text {
 		id: deviceValue
@@ -138,6 +142,8 @@ Tile {
 		}
 		visible: (type === "measure" && devflow == "device")
 	}
+
+/////////ALARM/////////////////////////////////////////	
 	
 	Rectangle {
 		id: alarmIcon
@@ -152,6 +158,8 @@ Tile {
 		visible: ((type === "alarm" || type === "heating") && devflow == "device")
 	}
 	
+/////////LOCK/////////////////////////////////////////	
+	
 	Image {
 		id: lockImage
 		source:   dimState? (value === "true")? "drawables/lock_60_white.png": "drawables/unlock_60_white.png" : (value === "true")? "drawables/lock_60_black.png": "drawables/unlock_60_black.png"
@@ -164,7 +172,10 @@ Tile {
 		}
 		visible: ((type === "lock") && devflow == "device")
 	}
-	
+
+
+/////////ON OFF TOGGLE/////////////////////////////////////////	
+
 	Rectangle {
 		id: backRectangle
 		radius: 10
@@ -183,7 +194,7 @@ Tile {
 		}
 		visible: switchToggle.visible
 	}
-	
+
 	OnOffToggle {
 		id: switchToggle
 		height: isNxt? 50:40
@@ -206,6 +217,8 @@ Tile {
 		}
 		visible: ((type=="onoff") && devflow == "device")
 	}
+
+/////////SCREENS/////////////////////////////////////////	
 	
 	IconButton {
 		id: stopButton
@@ -256,7 +269,8 @@ Tile {
 		}
 		visible: ((type=="window") && devflow == "device")
 	}
-	
+
+/////////FLOW/////////////////////////////////////////		
 
 	StandardButton {
 		id: startButton
@@ -271,4 +285,181 @@ Tile {
 		}
 		visible: (available && devflow == "flow")
 	}
+	
+/////////MOTION BLINDS/////////////////////////////////////////	
+	
+	Rectangle {
+		id: backRectangleMB
+		radius: isNxt? 30:24
+		width: isNxt? 250:200
+		height: isNxt? 120:96
+		color: "transparent"
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: deviceName.bottom
+		}
+		MouseArea {
+			anchors.fill: parent
+			onClicked: {
+			}
+		}
+		visible: (type === "motionblind" && devflow == "device")
+	}
+	
+	
+	Text {
+		id: topText
+		text: available? mbTop*100 + " %" : ""
+		font.pixelSize:  isNxt? 20:16
+		font.family: qfont.bold.name
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: deviceName.bottom
+			topMargin: isNxt? 6:5
+		}
+		visible: (type === "motionblind" && devflow == "device")
+	}
+	
+	IconButton {
+		id: upButtonTop
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: up
+		anchors {
+			right:upButtonMB.left
+			rightMargin: 10
+			top: deviceName.bottom
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/up.png"
+		onClicked: {
+			app.setState("windowcoverings_set.bottom",key, (mbTop + 0.10))
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+
+	IconButton {
+		id: downButtonTop
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: down
+		anchors {
+			left:downButtonMB.right
+			leftMargin: 10
+			top: deviceName.bottom
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/down.png"
+		onClicked: {
+			app.setState("windowcoverings_set.bottom",key, (mbTop - 0.10))
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+	
+	IconButton {
+		id: stopButtonMB
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp:(!up && !down)
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: downButtonTop.bottom
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/stop.png"
+		onClicked: {
+			app.setState("windowcoverings_state",key, "idle")
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+	
+	IconButton {
+		id: upButtonMB
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: up
+		anchors {
+			left: stopButtonMB.right
+			top: downButtonTop.bottom
+			leftMargin: isNxt? 60:48
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/up.png"
+		onClicked: {
+			app.setState("windowcoverings_state",key, "up")
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+
+	IconButton {
+		id: downButtonMB
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: down
+		anchors {
+			right:stopButtonMB.left
+			top: downButtonTop.bottom
+			topMargin: isNxt? 6:5
+			rightMargin: isNxt?  60:48
+		}
+		iconSource: "qrc:/tsc/down.png"
+		onClicked: {
+			app.setState("windowcoverings_state",key, "down")
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+	
+	
+
+	Text {
+		id: bottomText
+		text: available? mbBottom*100 + " %" : ""
+		font.pixelSize:  isNxt? 20:16
+		font.family: qfont.bold.name
+		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: downButtonMB.bottom
+			topMargin: isNxt? 6:5
+		}
+		visible: (type === "motionblind" && devflow == "device")
+	}
+	
+	IconButton {
+		id: upButtonBottom
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: up
+		anchors {
+			right:upButtonMB.left
+			rightMargin: 10
+			top: downButtonMB.bottom
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/up.png"
+		onClicked: {
+			app.setState("windowcoverings_set.bottom",key, (mbBottom + 0.10))
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+
+	IconButton {
+		id: downButtonBottom
+		height: isNxt? 30:24
+		overlayColorUp: "red"
+		overlayWhenUp: down
+		anchors {
+			left:downButtonMB.right
+			leftMargin: 10
+			top: downButtonMB.bottom
+			topMargin: isNxt? 6:5
+		}
+		iconSource: "qrc:/tsc/down.png"
+		onClicked: {
+			app.setState("windowcoverings_set.bottom",key, (mbBottom - 0.10))
+		}
+		visible: ((type=="motionblind") && devflow == "device")
+	}
+		
 }

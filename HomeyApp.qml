@@ -14,7 +14,7 @@ App {
 	id: root
 	
 	property bool 	debugOutput: false
-	property bool 	testurl: false
+	property bool 	testurl: true
 	
 	property url 	tileUrl : "HomeyTile.qml"
 	property url 	tileUrl0 : "HomeyNr0Tile.qml"
@@ -27,6 +27,17 @@ App {
 	property url 	tileUrl7 : "HomeyNr7Tile.qml"
 	property url 	tileUrl8 : "HomeyNr8Tile.qml"
 	property url 	tileUrl9 : "HomeyNr9Tile.qml"
+	
+	property bool 	tile0visible: false
+	property bool 	tile1visible: false
+	property bool 	tile2visible: false
+	property bool 	tile3visible: false
+	property bool 	tile4visible: false
+	property bool 	tile5visible: false
+	property bool 	tile6visible: false
+	property bool 	tile7visible: false
+	property bool 	tile8visible: false
+	property bool 	tile9visible: false
 	
 	
 	property int 	calledFromTile : 0
@@ -77,12 +88,6 @@ App {
 	property bool   	needReboot: false
 	property string 	tileString: ''
 	property variant 	tilesJSON : []
-
-	property bool 		tile0visible: false
-	property bool 		tile1visible: false
-	property bool 		tile2visible: false
-	property bool 		tile3visible: false
-	property bool 		tile4visible: false
 	
 	signal clearModels()
 	signal homeyUpdated()
@@ -162,14 +167,6 @@ App {
 //TILE//
 registry.registerWidget("tile", tileUrl0, this, null, {thumbLabel: qsTr("Homey_0"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
 registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl2, this, null, {thumbLabel: qsTr("Homey_2"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl3, this, null, {thumbLabel: qsTr("Homey_3"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl4, this, null, {thumbLabel: qsTr("Homey_4"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl5, this, null, {thumbLabel: qsTr("Homey_5"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl6, this, null, {thumbLabel: qsTr("Homey_6"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl7, this, null, {thumbLabel: qsTr("Homey_7"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl8, this, null, {thumbLabel: qsTr("Homey_8"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl9, this, null, {thumbLabel: qsTr("Homey_9"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
 
 //TILE END//		
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
@@ -339,6 +336,36 @@ registry.registerWidget("tile", tileUrl9, this, null, {thumbLabel: qsTr("Homey_9
 												tilesJSON[tileNR].down = downState
 											}
 											
+											if (JsonObject[key].driverId.indexOf("motionblinds") > -1){
+												var downState = false
+											    var upState = false
+												var valStateMain = JsonObject[key].capabilitiesObj[capabilityLong].value
+												switch (valStateMain) {
+													case "up":
+														upState = true
+														downState = false
+														break
+													case "idle":
+														upState = false
+														downState = false
+														break
+													case "down":
+														upState = false
+														downState = true
+														break
+													default:
+														upState = false
+														downState = false
+														break
+												}
+												var mbTop = JsonObject[key].capabilitiesObj["windowcoverings_set.top"].value
+												var mbDown = JsonObject[key].capabilitiesObj["windowcoverings_set.bottom"].value
+												tilesJSON[tileNR].up = upState
+												tilesJSON[tileNR].down = downState
+												tilesJSON[tileNR].mbTop = mbTop
+												tilesJSON[tileNR].mbDown = mbDown
+											}
+
 											tilesJSON[tileNR].value = String(JsonObject[key].capabilitiesObj[capabilityLong].value)
 											tilesJSON[tileNR].available = JsonObject[key].available
 											homeyUpdated()
@@ -438,6 +465,40 @@ registry.registerWidget("tile", tileUrl9, this, null, {thumbLabel: qsTr("Homey_9
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

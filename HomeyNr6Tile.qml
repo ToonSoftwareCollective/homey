@@ -12,8 +12,8 @@ Tile {
     property string available : app.tilesJSON[tileNR].available
 	property string capaShort : app.tilesJSON[tileNR].capaShort
 	property string devicename : app.tilesJSON[tileNR].devicename
-	property string down : app.tilesJSON[tileNR].down
-	property string up : app.tilesJSON[tileNR].up
+	property bool 	down : app.tilesJSON[tileNR].down
+	property bool 	up : app.tilesJSON[tileNR].up
 	property string key : app.tilesJSON[tileNR].key
 	property string type : app.tilesJSON[tileNR].type
 	property string unit : app.tilesJSON[tileNR].unit
@@ -24,7 +24,14 @@ Tile {
 	
 	property bool dimState: screenStateController.dimmedColors
 
-	
+
+	onClicked: {
+		if (app.homeyFavoritesScreen){	
+			app.homeyFavoritesScreen.show();
+		}
+	}
+
+/*	
 	MouseArea {
 		anchors.fill: parent
 		onClicked: {
@@ -33,6 +40,8 @@ Tile {
 		}
 		}
 	}
+
+*/
 
 	Component.onCompleted: {
 		app.homeyUpdated.connect(updateTile);
@@ -116,7 +125,7 @@ Tile {
 	
 	Text {
 		id: deviceName2
-		text: (type !== "measure")? "":(capaShort).substring(0, 41)
+		text: (type !== "measure")? "":(capaShort.replace(/measure_|meter_/g, "")).substring(0, 41)
 		font.pixelSize:  isNxt? 18:14
 		font.family: qfont.bold.name
 		color : dimState?  dimmableColors.clockTileColor : colors.clockTileColor
