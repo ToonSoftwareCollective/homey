@@ -31,7 +31,7 @@ Screen {
 	}
 	
 	function showPopup() {
-		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden flows. Kies de flows die in het scherm<br>flows zichtbaar moeten zijn (zet een vinkje).") , qsTr("Sluiten"));
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden flows. Kies de flows die in het scherm flows zichtbaar moeten zijn (zet een vinkje).") , qsTr("Sluiten"));
 	}
 
 	

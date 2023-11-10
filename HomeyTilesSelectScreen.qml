@@ -34,6 +34,10 @@ Screen {
 		source: "file:////mnt/data/tsc/appData/homey.tilesjsoncopy.json"
  	}
 	
+	function showPopup() {
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm kun je maximaal 10 tegels aanmaken. Kies per tegel voor een flow of voor een apparaat. Na te hebben gekozen klik je vervolgens op Opslaan en herstarten. Na het herstarten zijn de tegels beschikbaar om te installeren op een lege tegel.") , qsTr("Sluiten"));
+	}
+	
 
 	function readSettings() {
 		if (debugOutput) console.log("*********homey readSettings()")
@@ -80,6 +84,21 @@ Screen {
 			copySettings()
 		}
 		readSettings()
+	}
+	
+	StandardButton {
+		id: infoButton
+		text: "?"
+		height: isNxt? 40:32
+		anchors {
+			right: parent.right
+			rightMargin: isNxt? 25:20
+			bottom: frame1.top
+			bottomMargin: isNxt? 10:8
+		}
+		onClicked: {
+			showPopup();
+		}
 	}
 	
 	Rectangle {

@@ -32,7 +32,7 @@ Screen {
 	
 		
 	function showPopup() {
-		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("De cloudID kan gevonden worden op https://tools.developer.homey.app/tools/system,<br>achter de url als je inlogt op de homey (via webbrowser) https://my.homey.app/homeys/ <br>of als je in de homey naar de instellingen van de gebruiker gaat. De cloudID bestaat <br>uit cijfers en letters (hoofdlettergevoelig). Een voorbeeld is 61aec0b429b9f7660d41c329") , qsTr("Sluiten"));
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("De cloudID kan gevonden worden op https://tools.developer.homey.app/tools/system, achter de url als je inlogt op de homey (via webbrowser) https://my.homey.app/homeys/  of als je in de homey naar de instellingen van de gebruiker gaat. De cloudID bestaat uit cijfers en letters (hoofdlettergevoelig). Een voorbeeld is 61aec0b429b9f7660d41c329") , qsTr("Sluiten"));
 	}
 
 
