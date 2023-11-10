@@ -30,6 +30,12 @@ Screen {
 		homeyModel.clear()
 	}
 	
+	function showPopup() {
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden flows. Kies de flows die in het scherm<br>flows zichtbaar moeten zijn (zet een vinkje).") , qsTr("Sluiten"));
+	}
+
+	
+	
 	function readSettings() {
 		if (debugOutput) console.log("*********homey readSettings()")
 		try {
@@ -117,6 +123,21 @@ Screen {
 					homeyModel.setProperty(i, "checked", false)
 				}
 			}
+		}
+	}
+	
+	
+	StandardButton {
+		id: infoButton
+		text: "?"
+		height: isNxt? 40:32
+		anchors {
+			right: checkBoxAllDev.left
+			rightMargin: isNxt? 25:20
+			top: visibleName.bottom
+		}
+		onClicked: {
+			showPopup();
 		}
 	}
 	
