@@ -68,7 +68,7 @@ Screen {
 	
 	
 	function showPopup() {
-		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden apparaten. Kies de apparaten die in het scherm<br>favorieten zichtbaar moeten zijn (zet een vinkje). Daarnaast is het mogelijk om in de lijst apparaten te selectere die in het scherm apparaten zichtbaar moeten zijn.") , qsTr("Sluiten"));
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden apparaten. Kies de apparaten die in het scherm favorieten zichtbaar moeten zijn (zet een vinkje). Daarnaast is het mogelijk om in de lijst apparaten te selecteren die in het scherm apparaten zichtbaar moeten zijn.") , qsTr("Sluiten"));
 	}
 
 	
