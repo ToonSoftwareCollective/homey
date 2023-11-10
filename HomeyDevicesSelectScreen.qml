@@ -66,6 +66,12 @@ Screen {
         return (inputString === "true") ? true : false;
     }
 	
+	
+	function showPopup() {
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm staan alle gevonden apparaten. Kies de apparaten die in het scherm<br>favorieten zichtbaar moeten zijn (zet een vinkje). Daarnaast is het mogelijk om in de lijst apparaten te selectere die in het scherm apparaten zichtbaar moeten zijn.") , qsTr("Sluiten"));
+	}
+
+	
 
 	Text {
 		id: screenTip
@@ -190,6 +196,20 @@ Screen {
 					homeyModel.setProperty(i, "checkedfav", false)
 				}
 			}
+		}
+	}
+	
+	StandardButton {
+		id: infoButton
+		text: "?"
+		height: isNxt? 40:32
+		anchors {
+			right: checkBoxAllFav.left
+			rightMargin: isNxt? 30:24
+			top: favName.bottom
+		}
+		onClicked: {
+			showPopup();
 		}
 	}
 	

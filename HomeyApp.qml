@@ -15,8 +15,8 @@ App {
 	
 	property bool 	debugOutput: false
 	property bool 	testurl: false
+	property bool 	motionblinds: false
 	
-
 	property url 	tileUrl : "HomeyTile.qml"
 	property url 	tileUrl0 : "HomeyNr0Tile.qml"
 	property url 	tileUrl1 : "HomeyNr1Tile.qml"
@@ -337,7 +337,7 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 												tilesJSON[tileNR].down = downState
 											}
 											
-											if (JsonObject[key].driverId.indexOf("motionblinds") > -1){
+											if (motionblinds && JsonObject[key].driverId.indexOf("motionblinds") > -1){
 												var downState = false
 											    var upState = false
 												var valStateMain = JsonObject[key].capabilitiesObj[capabilityLong].value

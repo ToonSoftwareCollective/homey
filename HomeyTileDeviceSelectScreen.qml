@@ -363,7 +363,7 @@ Screen {
 										homeyModel.append({number: number,id: key , zone:zoneName, type: "window" , capa: capabilityLong , capaShort: capabilityShort , devicename: JsonObject[key].name, type2: "3 button", value: String(JsonObject[key].capabilitiesObj[capabilityLong].value), unit: units, available: isAvailable, up: upState, down: downState, mbDown: 0 ,mbTop:0})
 									}
 
-									if (JsonObject[key].driverId.indexOf("motionblinds") > -1 && capabilityLong.indexOf("windowcoverings_state") > -1){
+									if (app.motionblinds && JsonObject[key].driverId.indexOf("motionblinds") > -1 && capabilityLong.indexOf("windowcoverings_state") > -1){
 										var valStateMain = JsonObject[key].capabilitiesObj[capabilityLong].value
 										switch (valStateMain) {
 											case "up":

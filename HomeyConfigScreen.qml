@@ -29,6 +29,11 @@ Screen {
 		if (debugOutput) console.log("*********homey tmppassword " + tmppassword)
 		if (debugOutput) console.log("*********homey tmpcloudid " + tmpcloudid)
 	}
+	
+		
+	function showPopup() {
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("De cloudID kan gevonden worden op https://tools.developer.homey.app/tools/system,<br>achter de url als je inlogt op de homey (via webbrowser) https://my.homey.app/homeys/ <br>of als je in de homey naar de instellingen van de gebruiker gaat. De cloudID bestaat <br>uit cijfers en letters (hoofdlettergevoelig). Een voorbeeld is 61aec0b429b9f7660d41c329") , qsTr("Sluiten"));
+	}
 
 
 	onCustomButtonClicked: {
@@ -141,28 +146,26 @@ Screen {
 		}
 	}
 	
-	Text {
-		id: tipText
+	StandardButton {
+		id: infoButton
+		text: "?"
+		height: isNxt ? 35 : 28
 		anchors {
-			left: titleText.left
-			top: cloudIdLAbel.bottom
-			topMargin: isNxt ? 8 : 6
+			left: cloudIdLAbel.right
+			leftMargin: isNxt? 30:24
+			top: cloudIdLAbel.top
 		}
-		font {
-			pixelSize: qfont.bodyText
-			family: qfont.regular.name
+		onClicked: {
+			showPopup();
 		}
-		width: isNxt? parent.width - 40:parent.width - 32
-		wrapMode: Text.WordWrap
-		text: "De cloudID kan gevonden worden op https://tools.developer.homey.app/tools/system, achter de url als je inlogt op de homey (via webbrowser) https://my.homey.app/homeys/ of als je in de homey naar de instellingen van de gebruiker gaat. De cloudID bestaat uit cijfers en letters (hoofdlettergevoelig). Een voorbeeld is 61aec0b429b9f7660d41c329"
 	}
 	
-	
+
 	Text {
 		id: downloadText
 		anchors {
 			left: titleText.left
-			top: tipText.bottom
+			top: cloudIdLAbel.bottom
 			topMargin: isNxt ? 30 : 24
 		}
 		font {
