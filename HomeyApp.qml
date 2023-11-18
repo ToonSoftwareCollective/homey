@@ -7,8 +7,9 @@ import qb.components 1.0
 import qb.base 1.0;
 import ScreenStateController 1.0
 import FileIO 1.0
+import BxtClient 1.0
 import "HomeyTokenFunctions.js" as HomeyTokenFunctions
-
+import "HomeyTileFunctions.js" as HomeyTileFunctions
 
 App {
 	id: root
@@ -18,6 +19,9 @@ App {
 	property bool 	motionblinds: false
 	
 	property url 	tileUrl : "HomeyTile.qml"
+	
+	
+//PROPERTY//
 	property url 	tileUrl0 : "HomeyNr0Tile.qml"
 	property url 	tileUrl1 : "HomeyNr1Tile.qml"
 	property url 	tileUrl2 : "HomeyNr2Tile.qml"
@@ -25,10 +29,12 @@ App {
 	property url 	tileUrl4 : "HomeyNr4Tile.qml"
 	property url 	tileUrl5 : "HomeyNr5Tile.qml"
 	property url 	tileUrl6 : "HomeyNr6Tile.qml"
-	property url 	tileUrl7 : "HomeyNr7Tile.qml"
-	property url 	tileUrl8 : "HomeyNr8Tile.qml"
-	property url 	tileUrl9 : "HomeyNr9Tile.qml"
-	
+	property url 	tileUrl10 : "HomeyNr10Tile.qml"
+	property url 	tileUrl11 : "HomeyNr11Tile.qml"
+
+//PROPERTY END//
+
+//VISIBLE//
 	property bool 	tile0visible: false
 	property bool 	tile1visible: false
 	property bool 	tile2visible: false
@@ -36,13 +42,18 @@ App {
 	property bool 	tile4visible: false
 	property bool 	tile5visible: false
 	property bool 	tile6visible: false
-	property bool 	tile7visible: false
-	property bool 	tile8visible: false
-	property bool 	tile9visible: false
+	property bool 	tile10visible: false
+	property bool 	tile11visible: false
+
+//VISIBLE END//
 	
 	
 	property int 	calledFromTile : 0
+	property int    maxTiles : 20
 	property bool 	tileSettingsCopied : false
+	property bool 	tileCreated : false
+
+	property string	configMsgUuid: ""
 	
 
 	property HomeyConfigScreen 					homeyConfigScreen
@@ -90,6 +101,15 @@ App {
 	property string 	tileString: ''
 	property variant 	tilesJSON : []
 	
+    property bool 		needTileChange: false
+    property bool 		selectedMode4 : false
+    property bool 		selectedMode6 : false
+	property bool 		selectedModeNew4 : false
+    property bool 		selectedModeNew6 : false
+
+    property string 	configFile : "file:///qmf/config/config_happ_scsync.xml"
+
+	
 	signal clearModels()
 	signal homeyUpdated()
 	
@@ -120,7 +140,7 @@ App {
 		source: "file:///HCBv2/qml/apps/homey/HomeyApp.qml"
 	}
 	
-
+	
 	FileIO {
 		id: fileList
 	}
@@ -129,6 +149,32 @@ App {
 	FileIO {
 		id: fileNameIO
 	}
+	
+	FileIO {
+		id: generalTileFile;	
+		source: "file:///HCBv2/qml/apps/homey/HomeyGeneralTile.qml"
+	}
+
+	
+	
+	function getMode() {
+  		var xhr = new XMLHttpRequest();
+		var url = "file:///qmf/config/config_happ_scsync.xml"
+		 xhr.open("GET", url, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                if (xhr.responseText.indexOf("<feature>noHeating</feature>") === -1)  {
+                    selectedMode4 = true
+                    selectedMode6 = false
+                } else {
+                    selectedMode4 = false
+                    selectedMode6 = true
+                }
+			}
+		}
+        xhr.send();
+	}
+	
 	
 	function removeFiles(){
         if (debugOutput) console.log("*********Homey Start removeFiles()!")
@@ -161,15 +207,21 @@ App {
 		} catch(e) {
 		}
 	}
+	
+
+	function createTile(tileNumber){
+		var generalTileString = generalTileFile.read()
+		var newTileString = generalTileString.replace(/XXXXXXX/g, tileNumber)
+		var doc = new XMLHttpRequest();
+		doc.open("PUT", "file:///HCBv2/qml/apps/homey/HomeyNr" + tileNumber + "Tile.qml");
+		doc.send(newTileString);
+		tileCreated = true
+		if (debugOutput) console.log("*********homey tile " + tileNumber + " dynamically created ")
+	}
 
 	function init() {
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
-//TILE//
-registry.registerWidget("tile", tileUrl0, this, null, {thumbLabel: qsTr("Homey_0"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-
-//TILE END//		
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
 		registry.registerWidget("screen", homeyConfigScreen2Url, this, "homeyConfigScreen2");
 		registry.registerWidget("screen", homeyFlowScreenUrl, this, "homeyFlowScreen");
@@ -179,10 +231,31 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 		registry.registerWidget("screen", homeyTilesSelectScreenUrl, this, "homeyTilesSelectScreen");
 		registry.registerWidget("screen", homeyTileDeviceSelectScreenUrl, this, "homeyTileDeviceSelectScreen");
 		registry.registerWidget("screen", homeyTileFlowSelectScreenUrl, this, "homeyTileFlowSelectScreen");
+		
+//TILE//
+		registry.registerWidget("tile", tileUrl0, this, null, {thumbLabel: qsTr("Homey_0"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl2, this, null, {thumbLabel: qsTr("Homey_2"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl3, this, null, {thumbLabel: qsTr("Homey_3"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl4, this, null, {thumbLabel: qsTr("Homey_4"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl5, this, null, {thumbLabel: qsTr("Homey_5"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl6, this, null, {thumbLabel: qsTr("Homey_6"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl10, this, null, {thumbLabel: qsTr("Homey_10"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+		registry.registerWidget("tile", tileUrl11, this, null, {thumbLabel: qsTr("Homey_11"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+
+//TILE END//
+	
 	}
+	
+	
+	
+	
+	
 	
 	Component.onCompleted: {
 		readSettings();
+		HomeyTileFunctions.checkIfTilesNeeded()
+
 		if(token==""){
 			sleep(1000);
 			getNewToken();
@@ -194,9 +267,18 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 			if (debugOutput) console.log("*********homey token found:" + token)
 			HomeyTokenFunctions.checkToken();
 		}
+		getMode()
 	}
 	
-
+	function createTilesFromManualInput(devicesTileArray){
+		HomeyTileFunctions.createTiles(devicesTileArray)
+	}
+	
+	
+	function switchScreenMode(mode){
+		HomeyTileFunctions.switchMode(mode)
+	}
+	
 	function sleep(milliseconds) {
       var start = new Date().getTime();
       while ((new Date().getTime() - start) < milliseconds )  {
@@ -219,7 +301,6 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 			if (settings['token']) token = (settings['token']);
 			if (settings['rftoken']) rftoken = (settings['rftoken']);
 			if (settings['actoken']) actoken = (settings['actoken']);
-
 		} catch(e) {
 		}
 		try {
@@ -228,13 +309,12 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 			tilesJSON = JSON.parse(tileString);
 		} catch(e) {
 		}
-		
 		sleep(500);
     }
-	
+
+
 	function saveSettings() {
 		if (debugOutput) console.log("*********homey saveSettings()")
-
 		settings["email"] = email;
 		settings["password"] = password;
 		settings["client_id"] = client_id;
@@ -248,6 +328,8 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 		homeySettingsFile.write(JSON.stringify(settings));
 		if (debugOutput) console.log("*********homey saveSettings() file saved")
 	}
+	
+	
 	
 	function getNewToken() {
 		if (debugOutput) console.log("*********homey getNewToken()")
@@ -451,21 +533,70 @@ registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1
 		}
     }
 
-	
-	
 	Timer{
 		id: getDevicesTimer
 		interval: 10000
 		triggeredOnStart: true
-		running: (tile0visible || tile1visible || tile2visible || tile3visible || tile4visible || tile5visible || tile6visible || tile7visible || tile8visible || tile9visible)
+//TIMER//
+		running: (
+			tile0visible ||
+			tile1visible ||
+			tile2visible ||
+			tile3visible ||
+			tile4visible ||
+			tile5visible ||
+			tile6visible ||
+			tile10visible ||
+			tile11visible)
+//TIMER END//
 		repeat: true
 		onTriggered: 
 			if(tokenOK){
 				getTiles()
 			}
 	}
+	
+
+	function rebootToon() {
+		var restartToonMessage = bxtFactory.newBxtMessage(BxtMessage.ACTION_INVOKE, configMsgUuid, "specific1", "RequestReboot");
+		bxtClient.sendMsg(restartToonMessage);
+	}
+	
+	BxtDiscoveryHandler {
+		id: configDiscoHandler
+		deviceType: "hcb_config"
+		onDiscoReceived: {
+			configMsgUuid = deviceUuid
+		}
+	}
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -35,7 +35,7 @@ Screen {
  	}
 	
 	function showPopup() {
-		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm kun je maximaal 10 tegels aanmaken. Kies per tegel voor een flow of voor een apparaat. Na te hebben gekozen klik je vervolgens op Opslaan en herstarten. Na het herstarten zijn de tegels beschikbaar om te installeren op een lege tegel.") , qsTr("Sluiten"));
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("In dit scherm kun je maximaal " + app.maxTiles + " tegels aanmaken. Kies per tegel voor een flow of voor een apparaat. Na te hebben gekozen klik je vervolgens op Opslaan en herstarten. Na het herstarten zijn de tegels beschikbaar om te installeren op een lege tegel.") , qsTr("Sluiten"));
 	}
 	
 
@@ -288,7 +288,7 @@ Screen {
 				app.homeyTileDeviceSelectScreen.show();
 			}
 		}
-		visible: (devicesTileArray.length<10)
+		visible: (devicesTileArray.length<app.maxTiles)
 	}
 	
 	StandardButton {
@@ -307,7 +307,7 @@ Screen {
 				app.homeyTileFlowSelectScreen.show();
 			}
 		}
-		visible: (devicesTileArray.length<10)
+		visible: (devicesTileArray.length<app.maxTiles)
 	}
 					
 					
@@ -381,7 +381,7 @@ Screen {
 	
 	Timer {
 		id: rebootTimer
-		interval: 3000
+		interval: 5000
 		repeat:false
 		running: false
 		triggeredOnStart: false
@@ -401,33 +401,7 @@ Screen {
 		homeySettingsTileFile.write(settingsTileStringCopy)
 		app.tileSettingsCopied = false
 		app.refreshTiles()
-		
-		var tileString = ""
-		
-		var generalTileString = generalTileFile.read()
-		for(var i in devicesTileArray){
-				if(devicesTileArray[i].devflow !="leeg"){
-					tileString += "registry.registerWidget(\"tile\", tileUrl" + i + ", this, null, {thumbLabel: qsTr(\"Homey_" + i + "\"), thumbIcon: thumbnailIcon, thumbCategory: \"general\", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: \"center\"})\n"
-					var newTileString = generalTileString.replace(/XXXXXXX/g, i)
-					var doc = new XMLHttpRequest();
-					doc.open("PUT", "file:///HCBv2/qml/apps/homey/HomeyNr" + i + "Tile.qml");
-					doc.send(newTileString);
-				}
-		}
-
-		if (debugOutput) console.log("*********homey tileString" + tileString)
-		var appfileString =  appFile.read()
-		//if (debugOutput) console.log("*********toonTemp old appfileString: " + appfileString)
-		var oldappfileString = appfileString
-		var oldappfilelength = appfileString.length
-		var n201 = appfileString.indexOf('//TILE//') + '//TILE//'.length
-		var n202 = appfileString.indexOf('//TILE END//',n201)
-		//if (debugOutput) console.log("*********toonTemp old WidgetSettings: " + appfileString.substring(n201, n202))
-		var newappfileString = appfileString.substring(0, n201) + "\n" + tileString + "\n" + appfileString.substring(n202, appfileString.length)
-
-		appFile.write( newappfileString)
-		if (debugOutput) console.log("*********toonTemp new WidgetSettings saved ")
-	
+		app.createTilesFromManualInput(devicesTileArray)
 		readyText.text = "Opgeslagen, herstart nodig" + "..." 
 		readyTextRectangle.visible = true
 		rebootTimer.running = true
