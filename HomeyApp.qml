@@ -22,28 +22,14 @@ App {
 	
 	
 //PROPERTY//
-	property url 	tileUrl0 : "HomeyNr0Tile.qml"
-	property url 	tileUrl1 : "HomeyNr1Tile.qml"
-	property url 	tileUrl2 : "HomeyNr2Tile.qml"
-	property url 	tileUrl3 : "HomeyNr3Tile.qml"
-	property url 	tileUrl4 : "HomeyNr4Tile.qml"
-	property url 	tileUrl5 : "HomeyNr5Tile.qml"
-	property url 	tileUrl6 : "HomeyNr6Tile.qml"
-	property url 	tileUrl10 : "HomeyNr10Tile.qml"
-	property url 	tileUrl11 : "HomeyNr11Tile.qml"
+
+//LEEG
 
 //PROPERTY END//
 
 //VISIBLE//
-	property bool 	tile0visible: false
-	property bool 	tile1visible: false
-	property bool 	tile2visible: false
-	property bool 	tile3visible: false
-	property bool 	tile4visible: false
-	property bool 	tile5visible: false
-	property bool 	tile6visible: false
-	property bool 	tile10visible: false
-	property bool 	tile11visible: false
+
+
 
 //VISIBLE END//
 	
@@ -233,15 +219,7 @@ App {
 		registry.registerWidget("screen", homeyTileFlowSelectScreenUrl, this, "homeyTileFlowSelectScreen");
 		
 //TILE//
-		registry.registerWidget("tile", tileUrl0, this, null, {thumbLabel: qsTr("Homey_0"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl1, this, null, {thumbLabel: qsTr("Homey_1"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl2, this, null, {thumbLabel: qsTr("Homey_2"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl3, this, null, {thumbLabel: qsTr("Homey_3"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl4, this, null, {thumbLabel: qsTr("Homey_4"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl5, this, null, {thumbLabel: qsTr("Homey_5"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl6, this, null, {thumbLabel: qsTr("Homey_6"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl10, this, null, {thumbLabel: qsTr("Homey_10"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
-		registry.registerWidget("tile", tileUrl11, this, null, {thumbLabel: qsTr("Homey_11"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"})
+
 
 //TILE END//
 	
@@ -538,16 +516,9 @@ App {
 		interval: 10000
 		triggeredOnStart: true
 //TIMER//
-		running: (
-			tile0visible ||
-			tile1visible ||
-			tile2visible ||
-			tile3visible ||
-			tile4visible ||
-			tile5visible ||
-			tile6visible ||
-			tile10visible ||
-			tile11visible)
+
+
+
 //TIMER END//
 		repeat: true
 		onTriggered: 
