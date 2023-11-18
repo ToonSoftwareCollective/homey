@@ -1,3 +1,9 @@
+1.0.31
+- 20 tiles option
+- option to select 4/6 tiles per sceen
+- auto creation of tiles when app is updated
+
+
 1.0.28
 - first production release
 

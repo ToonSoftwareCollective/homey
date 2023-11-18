@@ -14,7 +14,9 @@ Screen {
 	property string		tmpSavePassWord: app.password
 	property string		tmpcloudid: app.cloudid
 	property string 	lanIp: "0.0.0.0"
-	
+	property bool		tempTile6Mode: app.selectedMode6
+
+
 	property string		rightButtonText: "Opslaan";
 
 	
@@ -25,6 +27,8 @@ Screen {
 		userNameLabel.inputText = tmpemail;
 		passWordLAbel.inputText = tmphidden
 		cloudIdLAbel.inputText = tmpcloudid
+		enable6Mode.isSwitchedOn = tempTile6Mode
+
 		if (debugOutput) console.log("*********homey tmpemail: " + tmpemail)
 		if (debugOutput) console.log("*********homey tmppassword " + tmppassword)
 		if (debugOutput) console.log("*********homey tmpcloudid " + tmpcloudid)
@@ -35,7 +39,10 @@ Screen {
 		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("De cloudID kan gevonden worden op https://tools.developer.homey.app/tools/system, achter de url als je inlogt op de homey (via webbrowser) https://my.homey.app/homeys/  of als je in de homey naar de instellingen van de gebruiker gaat. De cloudID bestaat uit cijfers en letters (hoofdlettergevoelig). Een voorbeeld is 61aec0b429b9f7660d41c329") , qsTr("Sluiten"));
 	}
 
-
+	function showPopup2() {
+		qdialog.showDialog(qdialog.SizeLarge, qsTr("Informatie"), qsTr("Standaard is de toon zo ingericht dat elk scherm 4 tegels bevat en een blok met de thermostaat instellingen. Door de instelling op 6 te zetten wordt de thermostaatfunctie van de toon uitgeschakeld en zullen per scherm 6 stuks tegel zichtbaar worden. De toon zal na het instellen en opslaan opnieuw opstarten."));
+	}
+	
 	onCustomButtonClicked: {
 		app.clearData()
 		app.email = tmpemail
@@ -43,13 +50,42 @@ Screen {
 		app.cloudid=tmpcloudid
 		refreshThrobber.visible=true
 		app.saveSettings()
-		app.sleep(500)
-		app.getNewToken()
-		refreshThrobber.visible=false
-		hide()
+
+		if (tempTile6Mode){
+			app.selectedModeNew4 = false
+			app.selectedModeNew6 = true
+		}else{
+			app.selectedModeNew4 = true
+			app.selectedModeNew6 = false
+		}
+		
+		if (app.selectedMode6 !== app.selectedModeNew6 ||  app.selectedMode4 === app.selectedModeNew4){
+			readyText.text = "Instellingen voor de tegels wijzigen"
+			throbberTimer.running = true
+			if(app.selectedModeNew4){
+				if (debugOutput) console.log("*********homey naar 4 tegels")
+				app.switchScreenMode(4)
+				readyText.text = "Herstarten"
+				sleep(1000)
+				app.rebootToon()
+			}else{
+				if (debugOutput) console.log("*********homey naar 6 tegels")
+				app.switchScreenMode(6)
+				readyText.text = "Herstarten"
+				sleep(1000)
+				app.rebootToon()
+			}
+		}else{
+			readyText.text = "Nieuwe tokens halen"
+			throbberTimer.running = true
+			app.getNewToken()
+			refreshThrobber.visible=false
+			hide()
+		}
+
 	}
 	
-	
+
 	function saveEmail(text) {
 		if (text) {
 			tmpemail = text;
@@ -160,12 +196,74 @@ Screen {
 		}
 	}
 	
+	Text {
+		id: mode4TXT
+		width:  160
+		text: "4 tegels per scherm"
+		font {
+			pixelSize: qfont.bodyText
+			family: qfont.regular.name
+		}
+		anchors {
+			left: titleText.left
+			top:enable6Mode.top
+		}
+	}
+
+	OnOffToggle {
+		id: enable6Mode
+		height:  30
+		//leftIsSwitchedOn: true
+		anchors {
+			left: mode4TXT.right
+			leftMargin: isNxt? 20:16
+			top: cloudIdLAbel.bottom
+			topMargin: isNxt ? 30 : 24
+		}
+		onSelectedChangedByUser: {
+			app.needTileChange = true
+			if (isSwitchedOn) {
+				tempTile6Mode = true;
+			} else {
+				tempTile6Mode = false;			
+			}
+		}
+	}
+
+	Text {
+		id:  mode6TXT
+		text: "6 tegels per scherm"
+		font {
+			pixelSize: qfont.bodyText
+			family: qfont.regular.name
+		}
+		anchors {
+			left: enable6Mode.right
+			leftMargin: isNxt? 20:16
+			top: enable6Mode.top		
+		}
+	}
+	
+	StandardButton {
+		id: infoButton2
+		text: "?"
+		height: isNxt ? 35 : 28
+		anchors {
+			left: mode6TXT.right
+			leftMargin: isNxt? 30:24
+			top: mode6TXT.top
+		}
+		onClicked: {
+			showPopup2();
+		}
+	}
+	
 
 	Text {
 		id: downloadText
 		anchors {
 			left: titleText.left
-			top: cloudIdLAbel.bottom
+			top: enable6Mode.bottom
 			topMargin: isNxt ? 30 : 24
 		}
 		font {
@@ -227,6 +325,9 @@ Screen {
 		}
 	}
 	
+
+
+	
 	
 	Throbber {
 		id: refreshThrobber
@@ -241,7 +342,7 @@ Screen {
 	
 	Text {
 		id: readyText
-		text: app.warning
+		text: ""
 		font.pixelSize:  isNxt? 32:26
 		font.family: qfont.bold.name
 		color: "red"
@@ -322,8 +423,6 @@ Screen {
 		}
 	}
 	
-	
-		
 	Timer{
 		id: throbberTimer
 		interval: 2000
@@ -337,5 +436,4 @@ Screen {
 			}
 	}
 
-	
 }
