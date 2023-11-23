@@ -517,7 +517,6 @@ App {
 		triggeredOnStart: true
 //TIMER//
 
-running: false
 
 //TIMER END//
 		repeat: true
