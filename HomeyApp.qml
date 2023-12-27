@@ -552,27 +552,7 @@ App {
 		interval: 10000
 		triggeredOnStart: true
 //TIMER//
-		running: (
-			tile0visible ||
-			tile1visible ||
-			tile2visible ||
-			tile3visible ||
-			tile4visible ||
-			tile5visible ||
-			tile6visible ||
-			tile7visible ||
-			tile8visible ||
-			tile9visible ||
-			tile10visible ||
-			tile11visible ||
-			tile12visible ||
-			tile13visible ||
-			tile14visible ||
-			tile15visible ||
-			tile16visible ||
-			tile17visible ||
-			tile18visible ||
-			tile19visible)
+
 //TIMER END//
 		repeat: true
 		onTriggered: 
