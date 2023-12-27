@@ -19,17 +19,55 @@ App {
 	property bool 	motionblinds: false
 	
 	property url 	tileUrl : "HomeyTile.qml"
-	
-	
-//PROPERTY//
+
 
 //LEEG
+	
+//PROPERTY//
+	property url 	tileUrl0 : "HomeyNr0Tile.qml"
+	property url 	tileUrl1 : "HomeyNr1Tile.qml"
+	property url 	tileUrl2 : "HomeyNr2Tile.qml"
+	property url 	tileUrl3 : "HomeyNr3Tile.qml"
+	property url 	tileUrl4 : "HomeyNr4Tile.qml"
+	property url 	tileUrl5 : "HomeyNr5Tile.qml"
+	property url 	tileUrl6 : "HomeyNr6Tile.qml"
+	property url 	tileUrl7 : "HomeyNr7Tile.qml"
+	property url 	tileUrl8 : "HomeyNr8Tile.qml"
+	property url 	tileUrl9 : "HomeyNr9Tile.qml"
+	property url 	tileUrl10 : "HomeyNr10Tile.qml"
+	property url 	tileUrl11 : "HomeyNr11Tile.qml"
+	property url 	tileUrl12 : "HomeyNr12Tile.qml"
+	property url 	tileUrl13 : "HomeyNr13Tile.qml"
+	property url 	tileUrl14 : "HomeyNr14Tile.qml"
+	property url 	tileUrl15 : "HomeyNr15Tile.qml"
+	property url 	tileUrl16 : "HomeyNr16Tile.qml"
+	property url 	tileUrl17 : "HomeyNr17Tile.qml"
+	property url 	tileUrl18 : "HomeyNr18Tile.qml"
+	property url 	tileUrl19 : "HomeyNr19Tile.qml"
 
 //PROPERTY END//
 
 //VISIBLE//
-
-
+	property bool 	tile0visible: false
+	property bool 	tile1visible: false
+	property bool 	tile2visible: false
+	property bool 	tile3visible: false
+	property bool 	tile4visible: false
+	property bool 	tile5visible: false
+	property bool 	tile6visible: false
+	property bool 	tile7visible: false
+	property bool 	tile8visible: false
+	property bool 	tile9visible: false
+	property bool 	tile10visible: false
+	property bool 	tile11visible: false
+	property bool 	tile12visible: false
+	property bool 	tile13visible: false
+	property bool 	tile14visible: false
+	property bool 	tile15visible: false
+	property bool 	tile16visible: false
+	property bool 	tile17visible: false
+	property bool 	tile18visible: false
+	property bool 	tile19visible: false
 
 //VISIBLE END//
 	
@@ -94,6 +132,7 @@ App {
     property bool 		selectedModeNew6 : false
 
     property string 	configFile : "file:///qmf/config/config_happ_scsync.xml"
+	
 
 	
 	signal clearModels()
@@ -141,8 +180,7 @@ App {
 		source: "file:///HCBv2/qml/apps/homey/HomeyGeneralTile.qml"
 	}
 
-	
-	
+
 	function getMode() {
   		var xhr = new XMLHttpRequest();
 		var url = "file:///qmf/config/config_happ_scsync.xml"
@@ -205,7 +243,9 @@ App {
 		if (debugOutput) console.log("*********homey tile " + tileNumber + " dynamically created ")
 	}
 
+
 	function init() {
+		registry.registerWidget("systrayIcon", trayUrl, this, "mediaTray2");
 		registry.registerWidget("screen", homeyScreenUrl, this, "homeyScreen");
 		registry.registerWidget("tile", tileUrl, this, null, {thumbLabel: qsTr("Homey"), thumbIcon: thumbnailIcon, thumbCategory: "general", thumbWeight: 30, baseTileWeight: 10, thumbIconVAlignment: "center"});
 		registry.registerWidget("screen", homeyConfigScreenUrl, this, "homeyConfigScreen");
@@ -220,15 +260,11 @@ App {
 		
 //TILE//
 
-
 //TILE END//
 	
 	}
 	
-	
-	
-	
-	
+
 	
 	Component.onCompleted: {
 		readSettings();
@@ -517,7 +553,6 @@ App {
 		triggeredOnStart: true
 //TIMER//
 
-
 //TIMER END//
 		repeat: true
 		onTriggered: 
@@ -542,6 +577,46 @@ App {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
