@@ -1,3 +1,6 @@
+1.0.33
+- auto creation of tiles changed, partly removed
+
 1.0.32
 - 20 tiles option
 - option to select 4/6 tiles per sceen
