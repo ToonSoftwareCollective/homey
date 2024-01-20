@@ -1,6 +1,6 @@
-
-1.0.34
-- auto creation of tiles changed, partly removed
+1.0.36
+- error solved in tile creation
+- systrayicon added
 
 1.0.32
 - 20 tiles option

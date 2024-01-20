@@ -512,7 +512,7 @@ App {
 		interval: 10000
 		triggeredOnStart: true
 //TIMER//
-		running: false
+
 //TIMER END//
 		repeat: true
 		onTriggered: 
@@ -537,11 +537,6 @@ App {
 
 
 }
-
-
-
-
-
 
 
 
