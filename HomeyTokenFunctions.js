@@ -11,7 +11,6 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
                         var JsonString = xhr.responseText
-						if (debugOutput) console.log("*********Homey getNewToken responseText: " + xhr.responseText)
                         var JsonObject= JSON.parse(JsonString)
                         var token = JsonObject.token
                         step2(token);
@@ -39,8 +38,6 @@
 
     function step2(token){
         if (debugOutput) console.log("*********Homey Start step2")
-		if (debugOutput) console.log("*********Homey step2 token: " + token)
-
 		warning = "Verbinding met Homey maken.."
         var body= 'email=' +encodeURIComponent(email) + '&password=' + encodeURIComponent(password) + '&otptoken='
         var xhr = new XMLHttpRequest()
@@ -51,8 +48,8 @@
         xhr.onreadystatechange = function() { // Call a function when the state changes.
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 || xhr.status === 300  || xhr.status === 302) {
-                        if (debugOutput) console.log("*********Homey " + " step2 xhr.status: " + xhr.status)
-                        if (debugOutput) console.log("*********Homey step2   xhr.responseText: " + xhr.responseText)
+                        //if (debugOutput) console.log("*********Homey " + "xhr.status: " + xhr.status)
+                        //if (debugOutput) console.log("*********Homey " + xhr.responseText)
                         var csrf = xhr.responseText.split("name=\"_csrf\" value=\"").pop().split("\">")[0].trim();
                         if (debugOutput) console.log("*********Homey " + csrf,token)
                         const headers = xhr.getAllResponseHeaders();
